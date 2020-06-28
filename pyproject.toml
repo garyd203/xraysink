@@ -5,13 +5,14 @@ target_version = ["py36", "py37", "py38"]
 [tool.poetry]
 name = "xraysink"
 version = "0.1.0"
-description = "Extra integrations for AWS X-RAY and asyncio Python."
+description = "Integrations for using AWS X-Ray with asyncio Python."
 readme = "README.md"
 authors = ["Gary Donovan <gazza@gazza.id.au>"]
 license = "Apache 2.0"
 homepage = "https://github.com/garyd203/xraysink"
 repository = "https://github.com/garyd203/xraysink"
 documentation = "https://github.com/garyd203/xraysink"
+# If you update this keyword list, also update the one in github
 keywords=["AWS", "XRay", "python", "asyncio"]
 classifiers = [
     "Development Status :: 3 - Alpha",
