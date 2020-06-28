@@ -1,0 +1,43 @@
+[tool.black]
+line-length = 88
+target_version = ["py36", "py37", "py38"]
+
+[tool.poetry]
+name = "xraysink"
+version = "0.1.0-alpha"
+description = "Extra integrations for AWS X-RAY and asyncio Python."
+readme = "README.md"
+authors = ["Gary Donovan <gazza@gazza.id.au>"]
+license = "Apache Software License"
+homepage = "https://github.com/garyd203/xraysink"
+repository = "https://github.com/garyd203/xraysink"
+documentation = "https://github.com/garyd203/xraysink"
+keywords=["AWS", "XRay", "python", "asyncio"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Web Environment",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: System :: Monitoring",
+]
+packages = [
+    { include="xraysink", from="src" },
+]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+black = "==19.3b0"
+
+[build-system]
+requires = ["poetry>=1.0.3"]
+build-backend = "poetry.masonry.api"
