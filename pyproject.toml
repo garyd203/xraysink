@@ -4,7 +4,7 @@ target_version = ["py36", "py37", "py38"]
 
 [tool.poetry]
 name = "xraysink"
-version = "0.1.0"
+version = "0.2.0-alpha"
 description = "Integrations for using AWS X-Ray with asyncio Python."
 readme = "README.md"
 authors = ["Gary Donovan <gazza@gazza.id.au>"]
