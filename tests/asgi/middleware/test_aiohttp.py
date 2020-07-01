@@ -143,9 +143,7 @@ def recorder(event_loop):
 
 
 async def test_ok(client, recorder):
-    """
-    Test a normal response
-    """
+    """Verify a normal response."""
     resp = await client.get("/")
     assert resp.status == 200
 
@@ -161,9 +159,7 @@ async def test_ok(client, recorder):
 
 
 async def test_ok_x_forwarded_for(client, recorder):
-    """
-    Test a normal response with x_forwarded_for headers
-    """
+    """Verify a normal response with x_forwarded_for headers."""
     resp = await client.get("/", headers={"X-Forwarded-For": "foo"})
     assert resp.status == 200
 
@@ -173,9 +169,7 @@ async def test_ok_x_forwarded_for(client, recorder):
 
 
 async def test_ok_content_length(client, recorder):
-    """
-    Test a normal response with content length as response header
-    """
+    """Verify a normal response with content length as response header."""
     resp = await client.get("/?content_length=100")
     assert resp.status == 200
 
@@ -183,10 +177,8 @@ async def test_ok_content_length(client, recorder):
     assert segment.http["response"]["content_length"] == 100
 
 
-async def test_error(client, recorder):
-    """
-    Test a 4XX response
-    """
+async def test_client_error(client, recorder):
+    """Verify a 4XX client error response."""
     resp = await client.get("/error")
     assert resp.status == 404
 
@@ -203,9 +195,7 @@ async def test_error(client, recorder):
 
 
 async def test_exception(client, recorder):
-    """
-    Test handling an exception
-    """
+    """Verify handling an exception."""
     resp = await client.get("/exception")
     await resp.text()  # Need this to trigger Exception
 
@@ -225,10 +215,8 @@ async def test_exception(client, recorder):
     assert exception.type == "KeyError"
 
 
-async def test_unhauthorized(client, recorder):
-    """
-    Test a 401 response
-    """
+async def test_unauthorized(client, recorder):
+    """Verify a 401 response."""
     resp = await client.get("/unauthorized")
     assert resp.status == 401
 
@@ -247,6 +235,7 @@ async def test_unhauthorized(client, recorder):
 
 
 async def test_response_trace_header(client, recorder):
+    """Verify the X-Ray trace header format."""
     resp = await client.get("/")
     xray_header = resp.headers[http.XRAY_HEADER]
     segment = recorder.emitter.pop()
@@ -255,10 +244,8 @@ async def test_response_trace_header(client, recorder):
     assert expected in xray_header
 
 
-async def test_concurrent(client, event_loop, recorder):
-    """
-    Test multiple concurrent requests
-    """
+async def test_concurrent_requests(client, event_loop, recorder):
+    """Verify multiple concurrent requests."""
     recorder.emitter = CustomStubbedEmitter()
 
     async def get_delay():
@@ -286,9 +273,7 @@ async def test_concurrent(client, event_loop, recorder):
 
 
 async def test_disabled_sdk(aiohttp_client, event_loop, recorder):
-    """
-    Test a normal response when the SDK is disabled.
-    """
+    """Verify response when the SDK is disabled."""
     global_sdk_config.set_sdk_enabled(False)
     client = await aiohttp_client(ServerTest.app(loop=event_loop))
 
