@@ -3,19 +3,19 @@
 Tests the middleware for aiohttp server
 Expects pytest-aiohttp
 """
+
 import asyncio
-from aws_xray_sdk import global_sdk_config
 from unittest.mock import patch
 
+import pytest
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPUnauthorized
-import pytest
-
-from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
+from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.async_context import AsyncContext
+from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
 from aws_xray_sdk.core.models import http
-from tests.util import get_new_stubbed_recorder
 from aws_xray_sdk.ext.aiohttp.middleware import middleware
+from tests.util import get_new_stubbed_recorder
 
 
 class CustomStubbedEmitter(UDPEmitter):
@@ -23,7 +23,7 @@ class CustomStubbedEmitter(UDPEmitter):
     Custom stubbed emitter which stores all segments instead of the last one
     """
 
-    def __init__(self, daemon_address='127.0.0.1:2000'):
+    def __init__(self, daemon_address="127.0.0.1:2000"):
         super(CustomStubbedEmitter, self).__init__(daemon_address)
         self.local = []
 
@@ -41,6 +41,7 @@ class ServerTest(object):
     """
     Simple class to hold a copy of the event loop
     """
+
     __test__ = False
 
     def __init__(self, loop):
@@ -51,7 +52,7 @@ class ServerTest(object):
         Handle / request
         """
         if "content_length" in request.query:
-            headers = {'Content-Length': request.query['content_length']}
+            headers = {"Content-Length": request.query["content_length"]}
         else:
             headers = None
 
@@ -73,7 +74,7 @@ class ServerTest(object):
         """
         Handle /exception which raises a KeyError
         """
-        return {}['key']
+        return {}["key"]
 
     async def handle_delay(self, request: web.Request) -> web.Response:
         """
@@ -84,11 +85,11 @@ class ServerTest(object):
 
     def get_app(self) -> web.Application:
         app = web.Application(middlewares=[middleware])
-        app.router.add_get('/', self.handle_ok)
-        app.router.add_get('/error', self.handle_error)
-        app.router.add_get('/exception', self.handle_exception)
-        app.router.add_get('/unauthorized', self.handle_unauthorized)
-        app.router.add_get('/delay', self.handle_delay)
+        app.router.add_get("/", self.handle_ok)
+        app.router.add_get("/error", self.handle_error)
+        app.router.add_get("/exception", self.handle_exception)
+        app.router.add_get("/unauthorized", self.handle_unauthorized)
+        app.router.add_get("/delay", self.handle_delay)
 
         return app
 
@@ -97,15 +98,17 @@ class ServerTest(object):
         return cls(loop=loop).get_app()
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def recorder(loop):
     """
     Clean up context storage before and after each test run
     """
     xray_recorder = get_new_stubbed_recorder()
-    xray_recorder.configure(service='test', sampling=False, context=AsyncContext(loop=loop))
+    xray_recorder.configure(
+        service="test", sampling=False, context=AsyncContext(loop=loop)
+    )
 
-    patcher = patch('aws_xray_sdk.ext.aiohttp.middleware.xray_recorder', xray_recorder)
+    patcher = patch("aws_xray_sdk.ext.aiohttp.middleware.xray_recorder", xray_recorder)
     patcher.start()
 
     xray_recorder.clear_trace_entities()
@@ -124,18 +127,18 @@ async def test_ok(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/')
+    resp = await client.get("/")
     assert resp.status == 200
 
     segment = recorder.emitter.pop()
     assert not segment.in_progress
 
-    request = segment.http['request']
-    response = segment.http['response']
+    request = segment.http["request"]
+    response = segment.http["response"]
 
-    assert request['method'] == 'GET'
-    assert request['url'] == 'http://127.0.0.1:{port}/'.format(port=client.port)
-    assert response['status'] == 200
+    assert request["method"] == "GET"
+    assert request["url"] == "http://127.0.0.1:{port}/".format(port=client.port)
+    assert response["status"] == 200
 
 
 async def test_ok_x_forwarded_for(test_client, loop, recorder):
@@ -147,12 +150,12 @@ async def test_ok_x_forwarded_for(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/', headers={'X-Forwarded-For': 'foo'})
+    resp = await client.get("/", headers={"X-Forwarded-For": "foo"})
     assert resp.status == 200
 
     segment = recorder.emitter.pop()
-    assert segment.http['request']['client_ip'] == 'foo'
-    assert segment.http['request']['x_forwarded_for']
+    assert segment.http["request"]["client_ip"] == "foo"
+    assert segment.http["request"]["x_forwarded_for"]
 
 
 async def test_ok_content_length(test_client, loop, recorder):
@@ -164,11 +167,11 @@ async def test_ok_content_length(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/?content_length=100')
+    resp = await client.get("/?content_length=100")
     assert resp.status == 200
 
     segment = recorder.emitter.pop()
-    assert segment.http['response']['content_length'] == 100
+    assert segment.http["response"]["content_length"] == 100
 
 
 async def test_error(test_client, loop, recorder):
@@ -180,19 +183,19 @@ async def test_error(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/error')
+    resp = await client.get("/error")
     assert resp.status == 404
 
     segment = recorder.emitter.pop()
     assert not segment.in_progress
     assert segment.error
 
-    request = segment.http['request']
-    response = segment.http['response']
-    assert request['method'] == 'GET'
-    assert request['url'] == 'http://127.0.0.1:{port}/error'.format(port=client.port)
-    assert request['client_ip'] == '127.0.0.1'
-    assert response['status'] == 404
+    request = segment.http["request"]
+    response = segment.http["response"]
+    assert request["method"] == "GET"
+    assert request["url"] == "http://127.0.0.1:{port}/error".format(port=client.port)
+    assert request["client_ip"] == "127.0.0.1"
+    assert response["status"] == 404
 
 
 async def test_exception(test_client, loop, recorder):
@@ -204,21 +207,23 @@ async def test_exception(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/exception')
+    resp = await client.get("/exception")
     await resp.text()  # Need this to trigger Exception
 
     segment = recorder.emitter.pop()
     assert not segment.in_progress
     assert segment.fault
 
-    request = segment.http['request']
-    response = segment.http['response']
-    exception = segment.cause['exceptions'][0]
-    assert request['method'] == 'GET'
-    assert request['url'] == 'http://127.0.0.1:{port}/exception'.format(port=client.port)
-    assert request['client_ip'] == '127.0.0.1'
-    assert response['status'] == 500
-    assert exception.type == 'KeyError'
+    request = segment.http["request"]
+    response = segment.http["response"]
+    exception = segment.cause["exceptions"][0]
+    assert request["method"] == "GET"
+    assert request["url"] == "http://127.0.0.1:{port}/exception".format(
+        port=client.port
+    )
+    assert request["client_ip"] == "127.0.0.1"
+    assert response["status"] == 500
+    assert exception.type == "KeyError"
 
 
 async def test_unhauthorized(test_client, loop, recorder):
@@ -230,28 +235,30 @@ async def test_unhauthorized(test_client, loop, recorder):
     """
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/unauthorized')
+    resp = await client.get("/unauthorized")
     assert resp.status == 401
 
     segment = recorder.emitter.pop()
     assert not segment.in_progress
     assert segment.error
 
-    request = segment.http['request']
-    response = segment.http['response']
-    assert request['method'] == 'GET'
-    assert request['url'] == 'http://127.0.0.1:{port}/unauthorized'.format(port=client.port)
-    assert request['client_ip'] == '127.0.0.1'
-    assert response['status'] == 401
+    request = segment.http["request"]
+    response = segment.http["response"]
+    assert request["method"] == "GET"
+    assert request["url"] == "http://127.0.0.1:{port}/unauthorized".format(
+        port=client.port
+    )
+    assert request["client_ip"] == "127.0.0.1"
+    assert response["status"] == 401
 
 
 async def test_response_trace_header(test_client, loop, recorder):
     client = await test_client(ServerTest.app(loop=loop))
-    resp = await client.get('/')
+    resp = await client.get("/")
     xray_header = resp.headers[http.XRAY_HEADER]
     segment = recorder.emitter.pop()
 
-    expected = 'Root=%s' % segment.trace_id
+    expected = "Root=%s" % segment.trace_id
     assert expected in xray_header
 
 
@@ -267,13 +274,23 @@ async def test_concurrent(test_client, loop, recorder):
     recorder.emitter = CustomStubbedEmitter()
 
     async def get_delay():
-        resp = await client.get('/delay')
+        resp = await client.get("/delay")
         assert resp.status == 200
 
-    await asyncio.wait([get_delay(), get_delay(), get_delay(),
-                        get_delay(), get_delay(), get_delay(),
-                        get_delay(), get_delay(), get_delay()],
-                       loop=loop)
+    await asyncio.wait(
+        [
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+            get_delay(),
+        ],
+        loop=loop,
+    )
 
     # Ensure all ID's are different
     ids = [item.id for item in recorder.emitter.local]
@@ -290,7 +307,7 @@ async def test_disabled_sdk(test_client, loop, recorder):
     global_sdk_config.set_sdk_enabled(False)
     client = await test_client(ServerTest.app(loop=loop))
 
-    resp = await client.get('/')
+    resp = await client.get("/")
     assert resp.status == 200
 
     segment = recorder.emitter.pop()
