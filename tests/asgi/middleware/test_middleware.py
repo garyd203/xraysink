@@ -1,5 +1,3 @@
-# Derived from https://github.com/aws/aws-xray-sdk-python/blob/master/tests/ext/aiohttp/test_middleware.py
-
 """Test the ASGI middleware with all asyncio server's."""
 
 import asyncio
