@@ -15,9 +15,6 @@ class AioHttpServerFactory(object):
 
     __test__ = False
 
-    def __init__(self, loop):
-        self._loop = loop
-
     async def handle_ok(self, request: web.Request) -> web.Response:
         """
         Handle / request
@@ -51,7 +48,7 @@ class AioHttpServerFactory(object):
         """
         Handle /delay request
         """
-        await asyncio.sleep(0.3, loop=self._loop)
+        await asyncio.sleep(0.3)
         return web.Response(text="ok")
 
     def get_app(self) -> web.Application:
@@ -65,5 +62,5 @@ class AioHttpServerFactory(object):
         return app
 
     @classmethod
-    def app(cls, loop=None) -> web.Application:
-        return cls(loop=loop).get_app()
+    def app(cls) -> web.Application:
+        return cls().get_app()

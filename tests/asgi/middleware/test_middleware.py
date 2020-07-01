@@ -33,10 +33,10 @@ async def loop(event_loop):
 
 
 @pytest.fixture
-async def client(event_loop, aiohttp_client):
+async def client(aiohttp_client):
     # Note that aiohttp is not actually ASGI-compliant, so we need to use
     # a custom client (not the usual `async_asgi_testclient.AsyncTestClient`)
-    client = await aiohttp_client(AioHttpServerFactory.app(loop=event_loop))
+    client = await aiohttp_client(AioHttpServerFactory.app())
     yield client
 
 
@@ -170,7 +170,7 @@ class TestRequestHandler:
         assert response["status"] == 500
         assert exception.type == "KeyError"
 
-    async def test_concurrent_requests(self, client, event_loop, recorder):
+    async def test_concurrent_requests(self, client, recorder):
         """Verify multiple concurrent requests."""
         recorder.emitter = CustomStubbedEmitter()
 
@@ -189,8 +189,7 @@ class TestRequestHandler:
                 get_delay(),
                 get_delay(),
                 get_delay(),
-            ],
-            loop=event_loop,
+            ]
         )
 
         # Ensure all ID's are different
@@ -211,10 +210,10 @@ class TestResponse:
         assert expected in xray_header
 
 
-async def test_disabled_sdk(aiohttp_client, event_loop, recorder):
+async def test_disabled_sdk(aiohttp_client, recorder):
     """Verify response when the SDK is disabled."""
     global_sdk_config.set_sdk_enabled(False)
-    client = await aiohttp_client(AioHttpServerFactory.app(loop=event_loop))
+    client = await aiohttp_client(AioHttpServerFactory.app())
 
     resp = await client.get("/")
     assert resp.status == 200
