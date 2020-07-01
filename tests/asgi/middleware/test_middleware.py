@@ -12,15 +12,14 @@ from aws_xray_sdk.core.models import http
 from ._aiohttp import AioHttpServerFactory
 from ...xray_util import get_new_stubbed_recorder
 
-pytestmark = pytest.mark.asyncio
-
-
 # Import just the client helper fixture from aiohttp, without polluting our
 # fixture namespace with all the cray-cray in the `pytest-aiohttp` pytest
 # plugin (like yet another `loop`).
 #
 # noinspection PyUnresolvedReferences
 from aiohttp.pytest_plugin import aiohttp_client
+
+pytestmark = pytest.mark.asyncio
 
 
 # Inject a `loop` fixture based on the normal `event_loop` fixture,
