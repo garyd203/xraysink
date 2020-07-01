@@ -1,3 +1,5 @@
+# From https://github.com/aws/aws-xray-sdk-python/blob/master/tests/ext/aiohttp/test_middleware.py
+
 import json
 import threading
 import jsonpickle
