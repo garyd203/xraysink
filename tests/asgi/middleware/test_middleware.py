@@ -134,7 +134,18 @@ class TestRequestHandler:
         self._verify_xray_request(segment, "/")
         self._verify_xray_response(segment, HTTP_200_OK)
 
-    async def test_should_use_client_ip_from_x_forwarded_for_header(
+    async def test_should_use_segmentid_in_http_header(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/")
+
+        # Verify
+        segment = recorder.emitter.pop()
+        expected_root = "Root=%s" % segment.trace_id
+
+        xray_header = server_response.headers[http.XRAY_HEADER]
+        assert expected_root in xray_header
+
+    async def test_should_record_client_ip_from_x_forwarded_for_header(
         self, client, recorder
     ):
         fake_ip = "10.1.2.3"
@@ -234,33 +245,15 @@ class TestRequestHandler:
         ids = [item.id for item in recorder.emitter.local]
         assert len(ids) == len(set(ids)), "All ID's should be different"
 
+    async def test_should_not_record_when_sdk_is_disabled(self, client, recorder):
+        # Setup
+        global_sdk_config.set_sdk_enabled(False)
 
-class TestResponse:
-    """Verify response format from an instrumented web server."""
-
-    async def test_response_trace_header(self, client, recorder):
-        """Verify the X-Ray trace header format."""
         # Exercise
         server_response = await client.get("/")
 
         # Verify
+        assert server_response.status == 200
+
         segment = recorder.emitter.pop()
-        expected_root = "Root=%s" % segment.trace_id
-
-        xray_header = server_response.headers[http.XRAY_HEADER]
-        assert expected_root in xray_header
-
-
-async def test_should_not_record_when_sdk_is_disabled(aiohttp_client, recorder):
-    # Setup
-    global_sdk_config.set_sdk_enabled(False)
-    client = await aiohttp_client(AioHttpServerFactory.app())
-
-    # Exercise
-    server_response = await client.get("/")
-
-    # Verify
-    assert server_response.status == 200
-
-    segment = recorder.emitter.pop()
-    assert not segment
+        assert not segment
