@@ -2,15 +2,24 @@
 
 import asyncio
 from unittest.mock import patch
+from urllib.parse import urlparse
 
 import pytest
 from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.async_context import AsyncContext
 from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
 from aws_xray_sdk.core.models import http
+from aws_xray_sdk.core.models.segment import Segment
+from starlette.status import HTTP_200_OK
+from starlette.status import HTTP_401_UNAUTHORIZED
+from starlette.status import HTTP_404_NOT_FOUND
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from ._aiohttp import AioHttpServerFactory
 from ...xray_util import get_new_stubbed_recorder
+
+pytestmark = pytest.mark.asyncio
+
 
 # Import just the client helper fixture from aiohttp, without polluting our
 # fixture namespace with all the cray-cray in the `pytest-aiohttp` pytest
@@ -18,8 +27,6 @@ from ...xray_util import get_new_stubbed_recorder
 #
 # noinspection PyUnresolvedReferences
 from aiohttp.pytest_plugin import aiohttp_client
-
-pytestmark = pytest.mark.asyncio
 
 
 # Inject a `loop` fixture based on the normal `event_loop` fixture,
@@ -79,119 +86,153 @@ def recorder(event_loop):
 class TestRequestHandler:
     """Verify that an instrumented web server handles requests correctly."""
 
-    async def test_ok(self, client, recorder):
-        """Verify a normal response."""
-        resp = await client.get("/")
-        assert resp.status == 200
+    def _verify_xray_request(
+        self,
+        segment: Segment,
+        path: str,
+        method: str = "GET",
+        client_ip: str = "127.0.0.1",
+        hostname: str = "127.0.0.1",
+        **optional_properties,
+    ):
+        """Verify the request in the X-Ray segment matches the HTTP request details."""
+        xray_request = segment.http["request"]
+
+        assert xray_request["client_ip"] == client_ip
+        assert xray_request["method"] == method
+
+        url = urlparse(xray_request["url"])
+        assert url.scheme == "http", "scheme should be in URL"
+        assert url.netloc.startswith(hostname), "URL should contain hostname"
+        assert url.path == path, "URL should contain path"
+
+        for name, value in optional_properties.items():
+            assert name in xray_request, f"Optional property f{name} should be present"
+            assert xray_request[name] == value
+
+    def _verify_xray_response(
+        self, segment: Segment, status: int, **optional_properties
+    ):
+        """Verify the request in the X-Ray segment matches the HTTP request details."""
+        xray_response = segment.http["response"]
+
+        assert xray_response["status"] == status
+
+        for name, value in optional_properties.items():
+            assert name in xray_response, f"Optional property f{name} should be present"
+            assert xray_response[name] == value
+
+    async def test_should_create_segment_for_normal_response(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/")
+
+        # Verify
+        assert server_response.status == HTTP_200_OK
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
+        self._verify_xray_request(segment, "/")
+        self._verify_xray_response(segment, HTTP_200_OK)
 
-        request = segment.http["request"]
-        response = segment.http["response"]
+    async def test_should_use_client_ip_from_x_forwarded_for_header(
+        self, client, recorder
+    ):
+        fake_ip = "10.1.2.3"
 
-        assert request["method"] == "GET"
-        assert request["url"] == "http://127.0.0.1:{port}/".format(port=client.port)
-        assert response["status"] == 200
+        # Exercise
+        server_response = await client.get("/", headers={"X-Forwarded-For": fake_ip})
 
-    async def test_ok_x_forwarded_for(self, client, recorder):
-        """Verify a normal response with x_forwarded_for headers."""
-        resp = await client.get("/", headers={"X-Forwarded-For": "foo"})
-        assert resp.status == 200
-
-        segment = recorder.emitter.pop()
-        assert segment.http["request"]["client_ip"] == "foo"
-        assert segment.http["request"]["x_forwarded_for"]
-
-    async def test_ok_content_length(self, client, recorder):
-        """Verify a normal response with content length as response header."""
-        resp = await client.get("/?content_length=100")
-        assert resp.status == 200
+        # Verify
+        assert server_response.status == HTTP_200_OK
 
         segment = recorder.emitter.pop()
-        assert segment.http["response"]["content_length"] == 100
+        self._verify_xray_request(segment, "/", client_ip=fake_ip, x_forwarded_for=True)
+        self._verify_xray_response(segment, HTTP_200_OK)
 
-    async def test_client_error(self, client, recorder):
-        """Verify a 4XX client error response."""
-        resp = await client.get("/error")
-        assert resp.status == 404
+    async def test_should_record_response_content_length(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/?content_length=100")
+
+        # Verify
+        assert server_response.status == HTTP_200_OK
+
+        segment = recorder.emitter.pop()
+        self._verify_xray_request(segment, "/")
+        self._verify_xray_response(segment, HTTP_200_OK, content_length=100)
+
+    async def test_should_record_4xx_client_error(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/error")
+
+        # Verify
+        assert server_response.status == HTTP_404_NOT_FOUND
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
         assert segment.error
 
-        request = segment.http["request"]
-        response = segment.http["response"]
-        assert request["method"] == "GET"
-        assert request["url"] == "http://127.0.0.1:{port}/error".format(
-            port=client.port
-        )
-        assert request["client_ip"] == "127.0.0.1"
-        assert response["status"] == 404
+        self._verify_xray_request(segment, "/error")
+        self._verify_xray_response(segment, HTTP_404_NOT_FOUND)
 
-    async def test_unauthorized(self, client, recorder):
-        """Verify a 401 response."""
-        resp = await client.get("/unauthorized")
-        assert resp.status == 401
+    async def test_should_record_unauthorized_error(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/unauthorized")
+
+        # Verify
+        assert server_response.status == HTTP_401_UNAUTHORIZED
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
         assert segment.error
 
-        request = segment.http["request"]
-        response = segment.http["response"]
-        assert request["method"] == "GET"
-        assert request["url"] == "http://127.0.0.1:{port}/unauthorized".format(
-            port=client.port
-        )
-        assert request["client_ip"] == "127.0.0.1"
-        assert response["status"] == 401
+        self._verify_xray_request(segment, "/unauthorized")
+        self._verify_xray_response(segment, HTTP_401_UNAUTHORIZED)
 
-    async def test_exception(self, client, recorder):
-        """Verify a response that encountered an exception whilst being handled."""
-        resp = await client.get("/exception")
-        await resp.text()  # Need this to trigger Exception
+    async def test_should_record_server_exception(self, client, recorder):
+        # Exercise
+        server_response = await client.get("/exception")
+
+        # Verify
+        assert server_response.status == HTTP_500_INTERNAL_SERVER_ERROR
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
+
+        self._verify_xray_request(segment, "/exception")
+        self._verify_xray_response(segment, HTTP_500_INTERNAL_SERVER_ERROR)
+
         assert segment.fault
-
-        request = segment.http["request"]
-        response = segment.http["response"]
         exception = segment.cause["exceptions"][0]
-        assert request["method"] == "GET"
-        assert request["url"] == "http://127.0.0.1:{port}/exception".format(
-            port=client.port
-        )
-        assert request["client_ip"] == "127.0.0.1"
-        assert response["status"] == 500
         assert exception.type == "KeyError"
 
-    async def test_concurrent_requests(self, client, recorder):
-        """Verify multiple concurrent requests."""
+    async def test_should_record_different_segment_for_each_concurrent_request(
+        self, client, recorder
+    ):
+        # Setup
         recorder.emitter = CustomStubbedEmitter()
 
-        async def get_delay():
-            resp = await client.get("/delay")
-            assert resp.status == 200
+        async def get_response_with_delay():
+            server_response = await client.get("/delay")
+            assert server_response.status == HTTP_200_OK
 
+        # Exercise
         await asyncio.wait(
             [
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
-                get_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
+                get_response_with_delay(),
             ]
         )
 
-        # Ensure all ID's are different
+        # Verify
         ids = [item.id for item in recorder.emitter.local]
-        assert len(ids) == len(set(ids))
+        assert len(ids) == len(set(ids)), "All ID's should be different"
 
 
 class TestResponse:
@@ -199,21 +240,27 @@ class TestResponse:
 
     async def test_response_trace_header(self, client, recorder):
         """Verify the X-Ray trace header format."""
-        resp = await client.get("/")
-        xray_header = resp.headers[http.XRAY_HEADER]
+        # Exercise
+        server_response = await client.get("/")
+
+        # Verify
         segment = recorder.emitter.pop()
+        expected_root = "Root=%s" % segment.trace_id
 
-        expected = "Root=%s" % segment.trace_id
-        assert expected in xray_header
+        xray_header = server_response.headers[http.XRAY_HEADER]
+        assert expected_root in xray_header
 
 
-async def test_disabled_sdk(aiohttp_client, recorder):
-    """Verify response when the SDK is disabled."""
+async def test_should_not_record_when_sdk_is_disabled(aiohttp_client, recorder):
+    # Setup
     global_sdk_config.set_sdk_enabled(False)
     client = await aiohttp_client(AioHttpServerFactory.app())
 
-    resp = await client.get("/")
-    assert resp.status == 200
+    # Exercise
+    server_response = await client.get("/")
+
+    # Verify
+    assert server_response.status == 200
 
     segment = recorder.emitter.pop()
     assert not segment
