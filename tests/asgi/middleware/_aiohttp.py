@@ -26,11 +26,11 @@ class AioHttpServerFactory(object):
 
         return web.Response(text="ok", headers=headers)
 
-    async def handle_error(self, request: web.Request) -> web.Response:
+    async def handle_client_error(self, request: web.Request) -> web.Response:
         """
-        Handle /error which returns a 404
+        Handle /client_error which returns a 422 client error
         """
-        return web.Response(text="not found", status=404)
+        return web.Response(text="bad something something", status=422)
 
     async def handle_unauthorized(self, request: web.Request) -> web.Response:
         """
@@ -54,7 +54,7 @@ class AioHttpServerFactory(object):
     def get_app(self) -> web.Application:
         app = web.Application(middlewares=[middleware])
         app.router.add_get("/", self.handle_ok)
-        app.router.add_get("/error", self.handle_error)
+        app.router.add_get("/client_error", self.handle_client_error)
         app.router.add_get("/exception", self.handle_exception)
         app.router.add_get("/unauthorized", self.handle_unauthorized)
         app.router.add_get("/delay", self.handle_delay)

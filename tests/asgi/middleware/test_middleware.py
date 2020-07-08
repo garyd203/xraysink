@@ -1,10 +1,14 @@
 """Test the ASGI middleware with all asyncio server's."""
 
 import asyncio
+from typing import Union
 from unittest.mock import patch
 from urllib.parse import urlparse
 
+import aiohttp.web_app
 import pytest
+import requests
+from async_asgi_testclient import TestClient
 from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.async_context import AsyncContext
 from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
@@ -12,10 +16,11 @@ from aws_xray_sdk.core.models import http
 from aws_xray_sdk.core.models.segment import Segment
 from starlette.status import HTTP_200_OK
 from starlette.status import HTTP_401_UNAUTHORIZED
-from starlette.status import HTTP_404_NOT_FOUND
+from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
 from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from ._aiohttp import AioHttpServerFactory
+from ._fastapi import fastapi_native_middleware_factory
 from ...xray_util import get_new_stubbed_recorder
 
 pytestmark = pytest.mark.asyncio
@@ -36,12 +41,31 @@ async def loop(event_loop):
     yield event_loop
 
 
-@pytest.fixture
-async def client(aiohttp_client):
-    # Note that aiohttp is not actually ASGI-compliant, so we need to use
-    # a custom client (not the usual `async_asgi_testclient.AsyncTestClient`)
-    client = await aiohttp_client(AioHttpServerFactory.app())
-    yield client
+@pytest.fixture(
+    params=[
+        pytest.param(AioHttpServerFactory.app, id="aiohttp"),
+        pytest.param(fastapi_native_middleware_factory, id="fastapi"),
+    ]
+)
+async def client(request, aiohttp_client):
+    """Get a client for each of the server frameworks under test."""
+    appfactory = request.param
+    app = appfactory()
+
+    if isinstance(app, aiohttp.web_app.Application):
+        # Note that aiohttp is not actually ASGI-compliant, so we need to use
+        # a custom client (not the usual `async_asgi_testclient.AsyncTestClient`)
+        client = await aiohttp_client(AioHttpServerFactory.app())
+        yield client
+    else:
+        # A normal ASGI-compliant app
+        async with TestClient(app) as client:
+            # Set the default request host to be the same as that for
+            # `aiohttp_client` (rather than the usual "localhost"), since it's
+            # difficult to modify the `aiohttp_client` one.
+            client.headers["host"] = "127.0.0.1"
+
+            yield client
 
 
 class CustomStubbedEmitter(UDPEmitter):
@@ -86,6 +110,17 @@ def recorder(event_loop):
 class TestRequestHandler:
     """Verify that an instrumented web server handles requests correctly."""
 
+    async def _verify_http_status(
+        self, response: Union[requests.Response, aiohttp.ClientResponse], status: int
+    ):
+        """Verify the status code on a response."""
+        if isinstance(response, aiohttp.ClientResponse):
+            assert response.status == status, await response.text()
+        elif hasattr(response, "status_code"):
+            assert response.status_code == status, response.text
+        else:
+            assert False, "Unknown response object type"
+
     def _verify_xray_request(
         self,
         segment: Segment,
@@ -127,7 +162,7 @@ class TestRequestHandler:
         server_response = await client.get("/")
 
         # Verify
-        assert server_response.status == HTTP_200_OK
+        await self._verify_http_status(server_response, HTTP_200_OK)
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
@@ -154,7 +189,7 @@ class TestRequestHandler:
         server_response = await client.get("/", headers={"X-Forwarded-For": fake_ip})
 
         # Verify
-        assert server_response.status == HTTP_200_OK
+        await self._verify_http_status(server_response, HTTP_200_OK)
 
         segment = recorder.emitter.pop()
         self._verify_xray_request(segment, "/", client_ip=fake_ip, x_forwarded_for=True)
@@ -165,7 +200,7 @@ class TestRequestHandler:
         server_response = await client.get("/?content_length=100")
 
         # Verify
-        assert server_response.status == HTTP_200_OK
+        await self._verify_http_status(server_response, HTTP_200_OK)
 
         segment = recorder.emitter.pop()
         self._verify_xray_request(segment, "/")
@@ -173,24 +208,24 @@ class TestRequestHandler:
 
     async def test_should_record_4xx_client_error(self, client, recorder):
         # Exercise
-        server_response = await client.get("/error")
+        server_response = await client.get("/client_error")
 
         # Verify
-        assert server_response.status == HTTP_404_NOT_FOUND
+        await self._verify_http_status(server_response, HTTP_422_UNPROCESSABLE_ENTITY)
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
         assert segment.error
 
-        self._verify_xray_request(segment, "/error")
-        self._verify_xray_response(segment, HTTP_404_NOT_FOUND)
+        self._verify_xray_request(segment, "/client_error")
+        self._verify_xray_response(segment, HTTP_422_UNPROCESSABLE_ENTITY)
 
     async def test_should_record_unauthorized_error(self, client, recorder):
         # Exercise
         server_response = await client.get("/unauthorized")
 
         # Verify
-        assert server_response.status == HTTP_401_UNAUTHORIZED
+        await self._verify_http_status(server_response, HTTP_401_UNAUTHORIZED)
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
@@ -204,7 +239,7 @@ class TestRequestHandler:
         server_response = await client.get("/exception")
 
         # Verify
-        assert server_response.status == HTTP_500_INTERNAL_SERVER_ERROR
+        await self._verify_http_status(server_response, HTTP_500_INTERNAL_SERVER_ERROR)
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
@@ -224,7 +259,7 @@ class TestRequestHandler:
 
         async def get_response_with_delay():
             server_response = await client.get("/delay")
-            assert server_response.status == HTTP_200_OK
+            await self._verify_http_status(server_response, HTTP_200_OK)
 
         # Exercise
         await asyncio.wait(
@@ -253,7 +288,7 @@ class TestRequestHandler:
         server_response = await client.get("/")
 
         # Verify
-        assert server_response.status == 200
+        await self._verify_http_status(server_response, HTTP_200_OK)
 
         segment = recorder.emitter.pop()
         assert not segment
