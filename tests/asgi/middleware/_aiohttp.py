@@ -4,7 +4,7 @@ import asyncio
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPUnauthorized
-from aws_xray_sdk.ext.aiohttp.middleware import middleware
+from xraysink.asgi.middleware import xray_middleware
 
 
 class AioHttpServerFactory(object):
@@ -52,7 +52,7 @@ class AioHttpServerFactory(object):
         return web.Response(text="ok")
 
     def get_app(self) -> web.Application:
-        app = web.Application(middlewares=[middleware])
+        app = web.Application(middlewares=[xray_middleware])
         app.router.add_get("/", self.handle_ok)
         app.router.add_get("/client_error", self.handle_client_error)
         app.router.add_get("/exception", self.handle_exception)
