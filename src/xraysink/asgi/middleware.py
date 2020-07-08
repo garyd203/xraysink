@@ -1,6 +1,4 @@
-"""
-AioHttp Middleware
-"""
+"""Various X-Ray middleware's for different ASGI-like server frameworks."""
 
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPException
@@ -14,12 +12,13 @@ from aws_xray_sdk.ext.util import prepare_response_header
 
 
 @web.middleware
-async def middleware(request, handler):
+async def xray_middleware(request, handler):
     """
     Main middleware function, deals with all the X-Ray segment logic
     """
     # Create X-Ray headers
     xray_header = construct_xray_header(request.headers)
+
     # Get name of service or generate a dynamic one from host
     name = calculate_segment_name(
         request.headers["host"].split(":", 1)[0], xray_recorder
@@ -28,7 +27,7 @@ async def middleware(request, handler):
     sampling_req = {
         "host": request.headers["host"],
         "method": request.method,
-        "path": request.path,
+        "path": _get_request_path(request),
         "service": name,
     }
 
@@ -45,6 +44,7 @@ async def middleware(request, handler):
     )
 
     segment.save_origin_trace_header(xray_header)
+
     # Store request metadata in the current segment
     segment.put_http_meta(http.URL, str(request.url))
     segment.put_http_meta(http.METHOD, request.method)
@@ -57,8 +57,12 @@ async def middleware(request, handler):
         segment.put_http_meta(http.X_FORWARDED_FOR, True)
     elif "remote_addr" in request.headers:
         segment.put_http_meta(http.CLIENT_IP, request.headers["remote_addr"])
-    else:
+    elif "remote-addr" in request.headers:
+        segment.put_http_meta(http.CLIENT_IP, request.headers["remote-addr"])
+    elif hasattr(request, "remote"):
         segment.put_http_meta(http.CLIENT_IP, request.remote)
+    elif hasattr(request, "client") and request.client.host is not None:
+        segment.put_http_meta(http.CLIENT_IP, request.client.host)
 
     try:
         # Call next middleware or request handler
@@ -76,7 +80,7 @@ async def middleware(request, handler):
         raise
     finally:
         if response is not None:
-            segment.put_http_meta(http.STATUS, response.status)
+            segment.put_http_meta(http.STATUS, _get_response_status(response))
             if "Content-Length" in response.headers:
                 length = int(response.headers["Content-Length"])
                 segment.put_http_meta(http.CONTENT_LENGTH, length)
@@ -87,3 +91,25 @@ async def middleware(request, handler):
         xray_recorder.end_segment()
 
     return response
+
+
+def _get_request_path(request) -> str:
+    """Get the path from from any type of request object."""
+    if hasattr(request, "path"):
+        # aiohttp-style
+        return request.path
+    elif hasattr(request, "url"):
+        # starlette-style
+        return request.url.path
+    raise TypeError(f"Don't know how to find the path for {type(request)}")
+
+
+def _get_response_status(response) -> int:
+    """Get the HTTP status code from any type of response object."""
+    if hasattr(response, "status"):
+        # aiohttp-style
+        return response.status
+    elif hasattr(response, "status_code"):
+        # starlette-style
+        return response.status_code
+    raise TypeError(f"Don't know how to find the path for {type(response)}")
