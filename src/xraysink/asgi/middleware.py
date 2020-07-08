@@ -1,6 +1,5 @@
 """Various X-Ray middleware's for different ASGI-like server frameworks."""
 
-from aiohttp import web
 from aiohttp.web_exceptions import HTTPException
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core.models import http
@@ -10,8 +9,18 @@ from aws_xray_sdk.ext.util import calculate_segment_name
 from aws_xray_sdk.ext.util import construct_xray_header
 from aws_xray_sdk.ext.util import prepare_response_header
 
+# Middleware functions for aiohttp must be decorated with a aiohttp-specific
+# decorator. The decorator itself is fairly innocuous, but we need to work
+# around it for situations where aiohttp is not present.
+try:
+    from aiohttp.web import middleware as aiohttp_middleware
+except ImportError:
 
-@web.middleware
+    def aiohttp_middleware(func):
+        return func
+
+
+@aiohttp_middleware
 async def xray_middleware(request, handler):
     """
     Main middleware function, deals with all the X-Ray segment logic
