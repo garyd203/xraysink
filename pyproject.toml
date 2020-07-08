@@ -45,6 +45,7 @@ aiohttp = "~3"
 async-asgi-testclient = "^1.4.4"
 pytest-asyncio = "^0.14"
 starlette = "^0.13"
+fastapi = "^0.58.1"
 
 [build-system]
 requires = ["poetry>=1.0.3"]
