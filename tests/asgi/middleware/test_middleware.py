@@ -97,7 +97,7 @@ def recorder(event_loop):
         service="test", sampling=False, context=AsyncContext(loop=event_loop)
     )
 
-    patcher = patch("aws_xray_sdk.ext.aiohttp.middleware.xray_recorder", xray_recorder)
+    patcher = patch("xraysink.asgi.middleware.xray_recorder", xray_recorder)
     patcher.start()
 
     xray_recorder.clear_trace_entities()
