@@ -64,35 +64,35 @@ async def xray_middleware(request, handler):
         parent_id=xray_header.parent,
         sampling=sampling_decision,
     )
-
-    segment.save_origin_trace_header(xray_header)
-
-    # Store request metadata in the current segment
-    segment.put_http_meta(http.URL, str(request.url))
-    segment.put_http_meta(http.METHOD, request.method)
-
-    if "User-Agent" in request.headers:
-        segment.put_http_meta(http.USER_AGENT, request.headers["User-Agent"])
-
-    if "X-Forwarded-For" in request.headers:
-        segment.put_http_meta(http.CLIENT_IP, request.headers["X-Forwarded-For"])
-        segment.put_http_meta(http.X_FORWARDED_FOR, True)
-    elif "remote_addr" in request.headers:
-        segment.put_http_meta(http.CLIENT_IP, request.headers["remote_addr"])
-    elif "remote-addr" in request.headers:
-        segment.put_http_meta(http.CLIENT_IP, request.headers["remote-addr"])
-    elif hasattr(request, "remote"):
-        segment.put_http_meta(http.CLIENT_IP, request.remote)
-    elif hasattr(request, "client") and request.client.host is not None:
-        segment.put_http_meta(http.CLIENT_IP, request.client.host)
-
-    # Call next middleware or request handler
     try:
-        response = await handler(request)
-        _record_response(segment, xray_header, response)
-    except Exception as ex:
-        _record_exception(segment, xray_header, ex)
-        raise
+        segment.save_origin_trace_header(xray_header)
+
+        # Store request metadata in the current segment
+        segment.put_http_meta(http.URL, str(request.url))
+        segment.put_http_meta(http.METHOD, request.method)
+
+        if "User-Agent" in request.headers:
+            segment.put_http_meta(http.USER_AGENT, request.headers["User-Agent"])
+
+        if "X-Forwarded-For" in request.headers:
+            segment.put_http_meta(http.CLIENT_IP, request.headers["X-Forwarded-For"])
+            segment.put_http_meta(http.X_FORWARDED_FOR, True)
+        elif "remote_addr" in request.headers:
+            segment.put_http_meta(http.CLIENT_IP, request.headers["remote_addr"])
+        elif "remote-addr" in request.headers:
+            segment.put_http_meta(http.CLIENT_IP, request.headers["remote-addr"])
+        elif hasattr(request, "remote"):
+            segment.put_http_meta(http.CLIENT_IP, request.remote)
+        elif hasattr(request, "client") and request.client.host is not None:
+            segment.put_http_meta(http.CLIENT_IP, request.client.host)
+
+        # Call next middleware or request handler
+        try:
+            response = await handler(request)
+            _record_response(segment, xray_header, response)
+        except Exception as ex:
+            _record_exception(segment, xray_header, ex)
+            raise
     finally:
         xray_recorder.end_segment()
 
