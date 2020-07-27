@@ -79,6 +79,10 @@ async def xray_middleware(request, handler):
             segment.put_http_meta(http.X_FORWARDED_FOR, True)
         elif "remote_addr" in request.headers:
             segment.put_http_meta(http.CLIENT_IP, request.headers["remote_addr"])
+        elif "remote-addr" in request.headers:
+            # NB: hyphenated variation of remote_addr.
+            # Don't mistakenly think they are the same :)
+            segment.put_http_meta(http.CLIENT_IP, request.headers["remote-addr"])
         elif hasattr(request, "remote"):
             segment.put_http_meta(http.CLIENT_IP, request.remote)
         elif hasattr(request, "client") and request.client.host is not None:
