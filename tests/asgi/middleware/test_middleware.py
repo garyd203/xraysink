@@ -207,9 +207,17 @@ class TestRequestHandler:
         self._verify_xray_request(segment, "/")
         self._verify_xray_response(segment, HTTP_200_OK, content_length=100)
 
-    async def test_should_record_4xx_client_error(self, client, recorder):
+    @pytest.mark.parametrize(
+        "path",
+        [
+            "/client_error_as_response",
+            "/client_error_as_http_exception",
+            "/client_error_from_handled_exception",
+        ],
+    )
+    async def test_should_record_4xx_client_error(self, client, recorder, path):
         # Exercise
-        server_response = await client.get("/client_error")
+        server_response = await client.get(path)
 
         # Verify
         await self._verify_http_status(server_response, HTTP_422_UNPROCESSABLE_ENTITY)
@@ -218,7 +226,7 @@ class TestRequestHandler:
         assert not segment.in_progress
         assert segment.error
 
-        self._verify_xray_request(segment, "/client_error")
+        self._verify_xray_request(segment, path)
         self._verify_xray_response(segment, HTTP_422_UNPROCESSABLE_ENTITY)
 
     async def test_should_record_unauthorized_error(self, client, recorder):
