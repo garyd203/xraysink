@@ -3,8 +3,10 @@ from typing import Optional
 
 from fastapi import FastAPI
 from starlette.middleware.base import BaseHTTPMiddleware
+from starlette.responses import JSONResponse
 from starlette.status import HTTP_401_UNAUTHORIZED
 from starlette.status import HTTP_422_UNPROCESSABLE_ENTITY
+from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from xraysink.asgi.middleware import xray_middleware
 
@@ -27,9 +29,21 @@ async def handle_with_delay() -> str:
     return "ok"
 
 
+async def generic_exception_handler(request, ex):
+    return JSONResponse(
+        status_code=HTTP_500_INTERNAL_SERVER_ERROR, content={"message": str(ex)}
+    )
+
+
 def fastapi_native_middleware_factory():
     """Create a FastAPI app that uses native-style middleware."""
     app = FastAPI()
+
+    # Add an explicit handler for our KeyError, as otherwise the generic
+    # error handler will send an "err" response that the test client
+    # converts back into an exception, thus breaking the test case.
+    app.add_exception_handler(KeyError, generic_exception_handler)
+
     app.add_middleware(BaseHTTPMiddleware, dispatch=xray_middleware)
 
     app.add_api_route("/", handle_request)
