@@ -2,8 +2,11 @@
 
 import asyncio
 
+import pytest
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPUnauthorized
+from aiohttp.web_exceptions import HTTPUnprocessableEntity
+
 from xraysink.asgi.middleware import xray_middleware
 
 
@@ -26,11 +29,24 @@ class AioHttpServerFactory(object):
 
         return web.Response(text="ok", headers=headers)
 
-    async def handle_client_error(self, request: web.Request) -> web.Response:
-        """
-        Handle /client_error which returns a 422 client error
-        """
+    async def handle_client_error_as_http_exception(
+        self, request: web.Request
+    ) -> web.Response:
+        raise HTTPUnprocessableEntity(reason="bad something something")
+
+    async def handle_client_error_as_response(
+        self, request: web.Request
+    ) -> web.Response:
         return web.Response(text="bad something something", status=422)
+
+    async def handle_client_error_from_handled_exception(
+        self, request: web.Request
+    ) -> web.Response:
+        # aiohttp doesn't have the concept of handling exceptions in the framework
+        pytest.skip("aiohttp doesn't handle application exception's in the framework")
+        return web.Response(
+            text="This response will be ignored because the test was skipped"
+        )
 
     async def handle_unauthorized(self, request: web.Request) -> web.Response:
         """
@@ -54,10 +70,20 @@ class AioHttpServerFactory(object):
     def get_app(self) -> web.Application:
         app = web.Application(middlewares=[xray_middleware])
         app.router.add_get("/", self.handle_ok)
-        app.router.add_get("/client_error", self.handle_client_error)
+        app.router.add_get(
+            "/client_error_as_http_exception",
+            self.handle_client_error_as_http_exception,
+        )
+        app.router.add_get(
+            "/client_error_as_response", self.handle_client_error_as_response
+        )
+        app.router.add_get(
+            "/client_error_from_handled_exception",
+            self.handle_client_error_from_handled_exception,
+        )
+        app.router.add_get("/delay", self.handle_delay)
         app.router.add_get("/exception", self.handle_exception)
         app.router.add_get("/unauthorized", self.handle_unauthorized)
-        app.router.add_get("/delay", self.handle_delay)
 
         return app
 

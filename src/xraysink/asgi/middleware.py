@@ -130,8 +130,9 @@ def _record_exception(segment: Segment, xray_header: TraceHeader, ex: Exception)
     exceptions are passed back to a user middleware like ours. For example:
     * aiohttp can use exceptions to signal non-success HTTP responses, which
       will be visible to middleware.
-    * fastapi explicitly puts it's standard exception handling in front of
-      middleware, so any exceptions are genuine server failures.
+    * fastapi explicitly puts it's well-known exception handling (including
+      HTTPException conversion) in front of any middleware, so any exceptions
+      at this point are genuine server failures.
     """
     # The aiohttp server framework will use exceptions that act as a response.
     #
