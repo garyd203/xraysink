@@ -1,6 +1,7 @@
 """Test the ASGI middleware with all asyncio server's."""
 
 import asyncio
+from datetime import datetime
 from typing import Union
 from unittest.mock import patch
 from urllib.parse import urlparse
@@ -258,7 +259,9 @@ class TestRequestHandler:
         recorder.emitter = CustomStubbedEmitter()
 
         async def get_response_with_delay():
+            test_start = datetime.utcnow()
             server_response = await client.get("/delay")
+            assert (datetime.utcnow() - test_start).total_seconds() > 0.3
             await self._verify_http_status(server_response, HTTP_200_OK)
 
         # Exercise

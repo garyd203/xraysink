@@ -36,7 +36,7 @@ def fastapi_native_middleware_factory():
     app.add_api_route(
         "/client_error", handle_request, status_code=HTTP_422_UNPROCESSABLE_ENTITY
     )
-    app.add_api_route("/delay", handle_with_keyerror)
+    app.add_api_route("/delay", handle_with_delay)
     app.add_api_route("/exception", handle_with_keyerror)
     app.add_api_route(
         "/unauthorized", handle_request, status_code=HTTP_401_UNAUTHORIZED
