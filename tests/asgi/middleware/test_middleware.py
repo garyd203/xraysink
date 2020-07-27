@@ -235,18 +235,22 @@ class TestRequestHandler:
         self._verify_xray_request(segment, "/unauthorized")
         self._verify_xray_response(segment, HTTP_401_UNAUTHORIZED)
 
-    async def test_should_record_5xx_server_error(self, client, recorder):
+    async def test_should_record_unhandled_server_exception(self, client, recorder):
         # Exercise
         #
         # Note that some test clients (eg. async_asgi_testclient) will
         # deliberately unpack the original exception in an ASGI "err" response
-        # and re-raise it for the test frameworks. So we need to be careful
-        # that our implementation does not send an "err" response
-        server_response = await client.get("/exception")
+        # and re-raise it for us. So we need to handle both types of response.
+        if isinstance(client, TestClient):
+            with pytest.raises(KeyError):
+                _ = await client.get("/exception")
+        else:
+            server_response = await client.get("/exception")
+            await self._verify_http_status(
+                server_response, HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
         # Verify
-        await self._verify_http_status(server_response, HTTP_500_INTERNAL_SERVER_ERROR)
-
         segment = recorder.emitter.pop()
         assert not segment.in_progress
 
