@@ -167,6 +167,9 @@ class TestRequestHandler:
 
         segment = recorder.emitter.pop()
         assert not segment.in_progress
+        assert not getattr(segment, "error", False)
+        assert not getattr(segment, "fault", False)
+
         self._verify_xray_request(segment, "/")
         self._verify_xray_response(segment, HTTP_200_OK)
 
@@ -225,6 +228,9 @@ class TestRequestHandler:
         segment = recorder.emitter.pop()
         assert not segment.in_progress
         assert segment.error
+        assert not getattr(
+            segment, "fault", False
+        ), "A client error is not a server fault"
 
         self._verify_xray_request(segment, path)
         self._verify_xray_response(segment, HTTP_422_UNPROCESSABLE_ENTITY)
@@ -239,6 +245,9 @@ class TestRequestHandler:
         segment = recorder.emitter.pop()
         assert not segment.in_progress
         assert segment.error
+        assert not getattr(
+            segment, "fault", False
+        ), "A client error is not a server fault"
 
         self._verify_xray_request(segment, "/unauthorized")
         self._verify_xray_response(segment, HTTP_401_UNAUTHORIZED)
@@ -262,12 +271,15 @@ class TestRequestHandler:
         segment = recorder.emitter.pop()
         assert not segment.in_progress
 
-        self._verify_xray_request(segment, "/exception")
-        self._verify_xray_response(segment, HTTP_500_INTERNAL_SERVER_ERROR)
-
+        assert not getattr(
+            segment, "error", False
+        ), "A server fault is not a client error"
         assert segment.fault
         exception = segment.cause["exceptions"][0]
         assert exception.type == "KeyError"
+
+        self._verify_xray_request(segment, "/exception")
+        self._verify_xray_response(segment, HTTP_500_INTERNAL_SERVER_ERROR)
 
     async def test_should_record_different_segment_for_each_concurrent_request(
         self, client, recorder
