@@ -37,7 +37,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.6"
 aws_xray_sdk = "~2"
-wrapt = "^1.12.1"
+wrapt = "^1.11"
 
 [tool.poetry.dev-dependencies]
 black = "==19.3b0"
