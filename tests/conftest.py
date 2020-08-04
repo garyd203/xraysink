@@ -24,7 +24,9 @@ def recorder(event_loop) -> AsyncAWSXRayRecorder:
         service="test", sampling=False, context=AsyncContext(loop=event_loop)
     )
 
-    with patch("xraysink.asgi.middleware.xray_recorder", xray_recorder):
+    with patch("xraysink.asgi.middleware.xray_recorder", xray_recorder), patch(
+        "xraysink.tasks.xray_recorder", xray_recorder
+    ):
         xray_recorder.clear_trace_entities()
         yield xray_recorder
         global_sdk_config.set_sdk_enabled(True)
