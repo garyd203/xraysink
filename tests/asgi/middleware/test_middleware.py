@@ -3,7 +3,6 @@
 import asyncio
 from datetime import datetime
 from typing import Union
-from unittest.mock import patch
 from urllib.parse import urlparse
 
 import aiohttp.web_app
@@ -11,7 +10,6 @@ import pytest
 import requests
 from async_asgi_testclient import TestClient
 from aws_xray_sdk import global_sdk_config
-from aws_xray_sdk.core.async_context import AsyncContext
 from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
 from aws_xray_sdk.core.models import http
 from aws_xray_sdk.core.models.segment import Segment
@@ -22,7 +20,6 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 
 from ._aiohttp import AioHttpServerFactory
 from ._fastapi import fastapi_native_middleware_factory
-from ...xray_util import get_new_stubbed_recorder
 
 pytestmark = pytest.mark.asyncio
 
@@ -86,26 +83,6 @@ class CustomStubbedEmitter(UDPEmitter):
             return self.local.pop(0)
         except IndexError:
             return None
-
-
-@pytest.fixture(scope="function")
-def recorder(event_loop):
-    """
-    Clean up context storage before and after each test run
-    """
-    xray_recorder = get_new_stubbed_recorder()
-    xray_recorder.configure(
-        service="test", sampling=False, context=AsyncContext(loop=event_loop)
-    )
-
-    patcher = patch("xraysink.asgi.middleware.xray_recorder", xray_recorder)
-    patcher.start()
-
-    xray_recorder.clear_trace_entities()
-    yield xray_recorder
-    global_sdk_config.set_sdk_enabled(True)
-    xray_recorder.clear_trace_entities()
-    patcher.stop()
 
 
 class TestRequestHandler:
