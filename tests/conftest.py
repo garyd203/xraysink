@@ -4,6 +4,7 @@ from unittest.mock import patch
 import pytest
 from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.async_context import AsyncContext
+from aws_xray_sdk.core.async_recorder import AsyncAWSXRayRecorder
 
 from xray_util import get_new_stubbed_recorder
 
@@ -15,21 +16,16 @@ def caplog(caplog):
     return caplog
 
 
-@pytest.fixture(scope="function")
-def recorder(event_loop):
-    """
-    Clean up context storage before and after each test run
-    """
+@pytest.fixture
+def recorder(event_loop) -> AsyncAWSXRayRecorder:
+    """An X-Ray recorder with local-only, stubbed, segment collection."""
     xray_recorder = get_new_stubbed_recorder()
     xray_recorder.configure(
         service="test", sampling=False, context=AsyncContext(loop=event_loop)
     )
 
-    patcher = patch("xraysink.asgi.middleware.xray_recorder", xray_recorder)
-    patcher.start()
-
-    xray_recorder.clear_trace_entities()
-    yield xray_recorder
-    global_sdk_config.set_sdk_enabled(True)
-    xray_recorder.clear_trace_entities()
-    patcher.stop()
+    with patch("xraysink.asgi.middleware.xray_recorder", xray_recorder):
+        xray_recorder.clear_trace_entities()
+        yield xray_recorder
+        global_sdk_config.set_sdk_enabled(True)
+        xray_recorder.clear_trace_entities()
