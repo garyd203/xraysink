@@ -33,6 +33,26 @@ Instrument incoming requests in your FastAPI web server by adding the `xray_midd
     app.add_middleware(BaseHTTPMiddleware, dispatch=xray_middleware)
 
 
+### Background Tasks
+If your process starts background tasks that make network calls (eg. to the
+database or an API in another service), then each execution of one of those
+tasks should be treated as a new X-Ray trace. Indeed, if you don't do so then
+you will likely get context_missing errors.
+
+An async function that implements a background task can be easily instrumented
+using the `@xray_task_async()` decorator, like so:
+
+    # Basic asyncio X-Ray configuration
+    xray_recorder.configure(context=AsyncContext(), service="my-cute-little-service")
+    
+    # Any call to this function will start a new X-Ray trace
+    @xray_task_async()
+    async def cleanup_stale_tokens():
+        await database.get_table("tokens").delete(age__gt=1)
+    
+    schedule_recurring_task(cleanup_stale_tokens)
+
+
 ## Licence
 This project uses the Apache 2.0 licence, to make it compatible with
 [aws_xray_sdk](https://github.com/aws/aws-xray-sdk-python), the
