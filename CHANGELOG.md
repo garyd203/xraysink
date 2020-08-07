@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Changed:
 * `@xray_task_async()` can be used to decorate methods and classmethods.
+* `@xray_task_async()` can set the path component of the synthetic URL.
 
 
 ## v1.0.0 (2020-08-05)

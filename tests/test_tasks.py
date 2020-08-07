@@ -111,3 +111,29 @@ class TestXrayTaskAsync:
         await self._verify_http_segment(
             segment, expected_path="/BoringClass/do_something"
         )
+
+    async def test_should_remove_leading_underscores_for_url_path(self, recorder):
+        # Setup SUT function
+        @xray_task_async()
+        async def _private_function():
+            pass
+
+        # Exercise
+        await _private_function()
+
+        # Verify
+        segment = recorder.emitter.pop()
+        await self._verify_http_segment(segment, expected_path="/private_function")
+
+    async def test_should_use_custom_url_path(self, recorder):
+        # Setup SUT function
+        @xray_task_async(_url_path="something_else")
+        async def do_something():
+            pass
+
+        # Exercise
+        await do_something()
+
+        # Verify
+        segment = recorder.emitter.pop()
+        await self._verify_http_segment(segment, expected_path="/something_else")
