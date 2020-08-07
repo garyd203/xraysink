@@ -1,5 +1,8 @@
 """Tools for tracing background tasks."""
 
+import inspect
+from typing import Optional
+
 import wrapt
 from aws_xray_sdk.core import xray_recorder
 from aws_xray_sdk.core.models import http
@@ -34,12 +37,27 @@ def xray_task_async():
             default the X-Ray SDK will use the service name that has been
             configured for this process.
     """
+    task_path: Optional[str] = None
 
     @wrapt.decorator
     async def wrapper(wrapped, instance, args, kwargs):
+        # Determine task path just once
+        nonlocal task_path
+        if task_path is None:
+            if instance is None:
+                task_path = wrapped.__name__
+            else:
+                if inspect.isclass(instance):
+                    task_path = "/".join([instance.__name__, wrapped.__name__])
+                else:
+                    task_path = "/".join(
+                        [instance.__class__.__name__, wrapped.__name__]
+                    )
+
+        # Start a segment from scratch (ie. start a new trace)
         async with xray_recorder.in_segment_async() as segment:
             # Add background task info to segment as a synthetic HTTP request
-            segment.put_http_meta(http.URL, "task://localhost/" + wrapped.__name__)
+            segment.put_http_meta(http.URL, "task://localhost/" + task_path)
             segment.put_http_meta(http.CLIENT_IP, "127.0.0.1")
             segment.put_http_meta(
                 http.USER_AGENT, f"BackgroundTask xraysink/{xraysink_version}"

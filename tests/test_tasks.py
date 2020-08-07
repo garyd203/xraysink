@@ -14,9 +14,18 @@ pytestmark = pytest.mark.asyncio
 class TestXrayTaskAsync:
     """Test the xray_task_async() decorator."""
 
+    async def _verify_core_segment(
+        self, segment: Segment, iserror: bool = False, isfault: bool = False
+    ):
+        """Verify the core fields of an X-Ray segment."""
+        assert not segment.in_progress
+        assert not getattr(segment, "error", iserror)
+        assert not getattr(segment, "fault", isfault)
+
     async def _verify_http_segment(
         self, segment: Segment, expected_path: Optional[str] = None
     ):
+        """Verify the "http" component of an X-Ray segment."""
         request_data = segment.http["request"]
 
         assert (
@@ -58,8 +67,47 @@ class TestXrayTaskAsync:
         assert func_result == 3, "Function result should be returned"
 
         segment = recorder.emitter.pop()
-        assert not segment.in_progress
-        assert not getattr(segment, "error", False)
-        assert not getattr(segment, "fault", False)
 
+        await self._verify_core_segment(segment)
         await self._verify_http_segment(segment, expected_path="/do_something")
+
+    async def test_should_decorate_method(self, recorder):
+        # Setup SUT function
+        class BoringClass:
+            @xray_task_async()
+            async def do_something(self, a, b):
+                return a + b
+
+        # Exercise
+        func_result = await BoringClass().do_something(1, 2)
+
+        # Verify
+        assert func_result == 3, "Function result should be returned"
+
+        segment = recorder.emitter.pop()
+
+        await self._verify_core_segment(segment)
+        await self._verify_http_segment(
+            segment, expected_path="/BoringClass/do_something"
+        )
+
+    async def test_should_decorate_classmethod(self, recorder):
+        # Setup SUT function
+        class BoringClass:
+            @xray_task_async()
+            @classmethod
+            async def do_something(cls, a, b):
+                return a + b
+
+        # Exercise
+        func_result = await BoringClass.do_something(1, 2)
+
+        # Verify
+        assert func_result == 3, "Function result should be returned"
+
+        segment = recorder.emitter.pop()
+
+        await self._verify_core_segment(segment)
+        await self._verify_http_segment(
+            segment, expected_path="/BoringClass/do_something"
+        )
