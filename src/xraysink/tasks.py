@@ -1,6 +1,7 @@
 """Tools for tracing background tasks."""
 
 import inspect
+import re
 from typing import Optional
 
 import wrapt
@@ -10,7 +11,7 @@ from aws_xray_sdk.core.models import http
 from . import __version__ as xraysink_version
 
 
-def xray_task_async():
+def xray_task_async(*, _url_path: Optional[str] = None):
     """Decorator for a coroutine that starts a new traced background task.
 
     Notes:
@@ -36,23 +37,29 @@ def xray_task_async():
         name: Override the name used for the segment (not recommended). By
             default the X-Ray SDK will use the service name that has been
             configured for this process.
+        _url_path: String to use as the path of the synthetic URL. The default
+            value is determined from the name of the decorated function.
     """
-    task_path: Optional[str] = None
+    task_path: Optional[str] = _url_path
+    if task_path is not None:
+        task_path = task_path.lstrip("/")
 
     @wrapt.decorator
     async def wrapper(wrapped, instance, args, kwargs):
         # Determine task path just once
         nonlocal task_path
         if task_path is None:
+            funcname = wrapped.__name__
+            if funcname.startswith("_") and not funcname.endswith("_"):
+                funcname = re.sub(r"^_+", repl="", string=funcname, count=1)
+
             if instance is None:
-                task_path = wrapped.__name__
+                task_path = funcname
             else:
                 if inspect.isclass(instance):
-                    task_path = "/".join([instance.__name__, wrapped.__name__])
+                    task_path = "/".join([instance.__name__, funcname])
                 else:
-                    task_path = "/".join(
-                        [instance.__class__.__name__, wrapped.__name__]
-                    )
+                    task_path = "/".join([instance.__class__.__name__, funcname])
 
         # Start a segment from scratch (ie. start a new trace)
         async with xray_recorder.in_segment_async() as segment:
