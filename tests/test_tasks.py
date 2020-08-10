@@ -19,8 +19,8 @@ class TestXrayTaskAsync:
     ):
         """Verify the core fields of an X-Ray segment."""
         assert not segment.in_progress
-        assert not getattr(segment, "error", iserror)
-        assert not getattr(segment, "fault", isfault)
+        assert getattr(segment, "error", False) == iserror
+        assert getattr(segment, "fault", False) == isfault
 
     async def _verify_http_segment(
         self, segment: Segment, expected_path: Optional[str] = None
@@ -137,3 +137,23 @@ class TestXrayTaskAsync:
         # Verify
         segment = recorder.emitter.pop()
         await self._verify_http_segment(segment, expected_path="/something_else")
+
+    async def test_should_capture_exception_in_segment(self, recorder):
+        # Setup SUT function
+        @xray_task_async()
+        async def do_something():
+            raise ValueError(42)
+
+        # Exercise
+        with pytest.raises(ValueError):
+            await do_something()
+
+        # Verify
+        segment = recorder.emitter.pop()
+
+        await self._verify_core_segment(segment, isfault=True)
+        await self._verify_http_segment(segment, expected_path="/do_something")
+
+        exception = segment.cause["exceptions"][0]
+        assert exception.type == "ValueError"
+
