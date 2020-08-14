@@ -10,6 +10,9 @@ from aws_xray_sdk.core.models import http
 
 from . import __version__ as xraysink_version
 
+#: URL scheme for the synthetic URL's used by background tasks.
+TASK_SCHEME = "task"
+
 
 def xray_task_async(*, _url_path: Optional[str] = None):
     """Decorator for a coroutine that starts a new traced background task.
@@ -64,7 +67,7 @@ def xray_task_async(*, _url_path: Optional[str] = None):
         # Start a segment from scratch (ie. start a new trace)
         async with xray_recorder.in_segment_async() as segment:
             # Add background task info to segment as a synthetic HTTP request
-            segment.put_http_meta(http.URL, "task://localhost/" + task_path)
+            segment.put_http_meta(http.URL, f"{TASK_SCHEME}://localhost/{task_path}")
             segment.put_http_meta(http.CLIENT_IP, "127.0.0.1")
             segment.put_http_meta(
                 http.USER_AGENT, f"BackgroundTask xraysink/{xraysink_version}"
