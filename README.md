@@ -1,6 +1,6 @@
 # xraysink (aka xray-asyncio)
-Extra AWS X-Ray instrumentation for asyncio Python libraries that are not
-(yet) supported by the official
+Extra AWS X-Ray instrumentation to use distributed tracing with asyncio Python
+libraries that are not (yet) supported by the official
 [aws_xray_sdk](https://github.com/aws/aws-xray-sdk-python) library.
 
 
