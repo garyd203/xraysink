@@ -13,6 +13,8 @@ Changed:
 * `@xray_task_async()` can be used to decorate methods and classmethods.
 * `@xray_task_async()` can set the path component of the synthetic URL.
 
+Added:
+* `set_xray_log_group()` process-level configuration function (non-async).
 
 ## v1.0.0 (2020-08-05)
 
