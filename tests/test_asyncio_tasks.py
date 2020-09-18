@@ -4,6 +4,8 @@ from asyncio import sleep
 import pytest
 from pytest import approx
 
+from xraysink.context import AsyncContext
+
 pytestmark = pytest.mark.asyncio
 
 
@@ -11,6 +13,8 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
     recorder
 ):
     # Setup
+    recorder.configure(context=AsyncContext(use_task_factory=True))
+
     async def do_task(name: str, sleep_time: float):
         # Emulate a remote call by starting a subsegment and blocking
         async with recorder.in_subsegment_async(name=name):
