@@ -6,7 +6,7 @@ from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.async_context import AsyncContext
 from aws_xray_sdk.core.async_recorder import AsyncAWSXRayRecorder
 
-from xray_util import get_new_stubbed_recorder
+from .xray_util import get_new_stubbed_recorder
 
 
 @pytest.fixture
