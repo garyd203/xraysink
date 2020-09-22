@@ -23,9 +23,13 @@ package manager. For example:
 ## How to use
 
 ### FastAPI
-Instrument incoming requests in your FastAPI web server by adding the `xray_middleware`. For example:
+Instrument incoming requests in your FastAPI web server by adding the
+`xray_middleware` to your app. For example, you could do:
 
-    # Basic asyncio X-Ray configuration
+    from starlette.middleware.base import BaseHTTPMiddleware
+    from xraysink.asgi.middleware import xray_middleware
+    
+    # Standard asyncio X-Ray configuration, customise as you choose
     xray_recorder.configure(context=AsyncContext(), service="my-cute-little-service")
     
     # Create a FastAPI app with various middleware
@@ -41,9 +45,11 @@ instrument any outgoing requests made inside those Tasks.
 
 Use the fixed `AsyncContext` from `xraysink` as a drop-in replacement, like so:
 
-    from xraysink.context import AsyncContext  # Use the AsyncContext from xraysink
     from aws_xray_sdk.core import xray_recorder
+    from xraysink.context import AsyncContext  # NB: Use the AsyncContext from xraysink
     
+    # Use the fixed AsyncContext when configuring X-Ray,
+    # and customise other configuration as you choose.
     xray_recorder.configure(context=AsyncContext(use_task_factory=True))
 
 
@@ -56,7 +62,10 @@ you will likely get context_missing errors.
 An async function that implements a background task can be easily instrumented
 using the `@xray_task_async()` decorator, like so:
 
-    # Basic asyncio X-Ray configuration
+    from aws_xray_sdk.core import xray_recorder
+    from xraysink.tasks import xray_task_async
+
+    # Standard asyncio X-Ray configuration, customise as you choose
     xray_recorder.configure(context=AsyncContext(), service="my-cute-little-service")
     
     # Any call to this function will start a new X-Ray trace
@@ -64,6 +73,7 @@ using the `@xray_task_async()` decorator, like so:
     async def cleanup_stale_tokens():
         await database.get_table("tokens").delete(age__gt=1)
     
+    # Start your background task using your scheduling system of choice :)
     schedule_recurring_task(cleanup_stale_tokens)
 
 
@@ -82,7 +92,9 @@ steps:
 
 1.  Explicitly set the name of the CloudWatch Logs log group associated with
     your process. There is no general way to detect the Log Group from inside
-    the process, hence it requires manual configuration.
+    the process, hence it requires manual configuration as part of your process
+    initialisation (eg. in the same place where you call
+    `xray_recorder.configure`).
     
         set_xray_log_group("/example/service-name")
 
