@@ -9,7 +9,8 @@ libraries that are not (yet) supported by the official
   framework. This has been tested with:
   - [aiohttp server](https://docs.aiohttp.org/en/stable/)
   - [FastAPI](https://fastapi.tiangolo.com/)
-
+* asyncio [Task's](https://docs.python.org/3/library/asyncio-task.html)
+* Background jobs/tasks
 
 ## Installation
 xraysink is distributed as a standard python package through
@@ -33,7 +34,20 @@ Instrument incoming requests in your FastAPI web server by adding the `xray_midd
     app.add_middleware(BaseHTTPMiddleware, dispatch=xray_middleware)
 
 
-### Background Tasks
+### Asyncio Tasks
+If you start asyncio [Task's](https://docs.python.org/3/library/asyncio-task.html)
+from a standard request handler, then the AWS X-Ray SDK will not correctly
+instrument any outgoing requests made inside those Tasks.
+
+Use the fixed `AsyncContext` from `xraysink` as a drop-in replacement, like so:
+
+    from xraysink.context import AsyncContext  # Use the AsyncContext from xraysink
+    from aws_xray_sdk.core import xray_recorder
+    
+    xray_recorder.configure(context=AsyncContext(use_task_factory=True))
+
+
+### Background Jobs/Tasks
 If your process starts background tasks that make network calls (eg. to the
 database or an API in another service), then each execution of one of those
 tasks should be treated as a new X-Ray trace. Indeed, if you don't do so then
