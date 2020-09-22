@@ -1,4 +1,17 @@
 # xraysink (aka `xray-asyncio`)
+
+<p align="center">
+    <a href="https://pypi.org/project/xraysink/">
+        <img src="https://img.shields.io/pypi/v/xraysink.svg" alt="Package version">
+    </a>
+    <a href="https://pypi.org/project/xraysink/">
+        <img src="https://img.shields.io/pypi/pyversions/xraysink.svg" alt="Python versions">
+    </a>
+    <a href="https://pypi.org/project/xraysink/">
+        <img src="https://img.shields.io/pypi/dm/xraysink.svg" alt="Monthly downloads">
+    </a>
+</p>
+
 Extra AWS X-Ray instrumentation to use distributed tracing with asyncio Python
 libraries that are not (yet) supported by the official
 [aws_xray_sdk](https://github.com/aws/aws-xray-sdk-python) library.
