@@ -156,4 +156,3 @@ class TestXrayTaskAsync:
 
         exception = segment.cause["exceptions"][0]
         assert exception.type == "ValueError"
-
