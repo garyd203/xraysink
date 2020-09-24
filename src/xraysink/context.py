@@ -23,6 +23,9 @@ def _context_aware_task_factory(loop, coro):
         current_task = asyncio.Task.current_task(loop=loop)
 
     if current_task is not None and hasattr(current_task, "context"):
+        # Propagate a copy of the current stack of entities (segment, plus
+        # ordered subsegments). We don't want to share the same entity stack
+        # amongst concurrent tasks, because that's just wrong.
         new_context = {"entities": list(current_task.context["entities"])}
         setattr(task, "context", new_context)
 
