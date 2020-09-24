@@ -13,19 +13,19 @@ from aws_xray_sdk.core.utils.compat import PY35
 class StubbedEmitter(UDPEmitter):
     def __init__(self, daemon_address="127.0.0.1:2000"):
         super(StubbedEmitter, self).__init__(daemon_address)
-        self._local = threading.local()
+        self._entities = []
 
     def send_entity(self, entity):
-        setattr(self._local, "cache", entity)
+        self._entities.append(entity)
 
     def pop(self):
-        if hasattr(self._local, "cache"):
-            entity = self._local.cache
-        else:
-            entity = None
+        if not self._entities:
+            return None
+        return self._entities.pop()
 
-        self._local.__dict__.clear()
-        return entity
+    @property
+    def segments(self):
+        return list(self._entities)
 
 
 class StubbedSampler(DefaultSampler):
