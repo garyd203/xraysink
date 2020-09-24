@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 
-## v1.1.0 (UNRELEASED)
+## v1.1.0 (2020-08-27)
 
 Changed:
 * `@xray_task_async()` can be used to decorate methods and classmethods.
