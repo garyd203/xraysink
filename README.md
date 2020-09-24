@@ -89,6 +89,12 @@ using the `@xray_task_async()` decorator, like so:
     # Start your background task using your scheduling system of choice :)
     schedule_recurring_task(cleanup_stale_tokens)
 
+If your background task functions are called from a function that is already
+instrumented (eg. send an email immediately after handling a request), then 
+the background task will appear as a child segment of that trace. In this case,
+you must ensure you use the fixed `AsyncContext` when configuring the recorder
+(ie. `from xraysink.context import AsyncContext`)
+
 
 ### Process-Level Configuration
 You can link your X-Ray traces to your CloudWatch Logs log records, which
