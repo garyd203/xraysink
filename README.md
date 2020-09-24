@@ -30,7 +30,7 @@ xraysink is distributed as a standard python package through
 [pypi](https://pypi.org/), so you can install it with your favourite Python
 package manager. For example:
 
-    pip install xraysink 
+    pip install xraysink
 
 
 ## How to use
@@ -114,6 +114,7 @@ steps:
 Note that this feature relies on undocumented functionality, and is
 [not yet](https://github.com/aws/aws-xray-sdk-python/issues/188)
 supported by the official Python SDK.
+
 
 ## Licence
 This project uses the Apache 2.0 licence, to make it compatible with
