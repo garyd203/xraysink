@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## v1.2.0 (2020-09-22)
+
+Added:
+* Custom `AsyncContext` class as a drop-in replacement for the context from
+  `aws_xray_sdk` that behaves incorrectly when creating an asyncio task.  
 
 ## v1.1.0 (2020-08-27)
 
