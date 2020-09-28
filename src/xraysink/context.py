@@ -13,7 +13,10 @@ def _context_aware_task_factory(loop, coro):
     Custom task factory function.
     """
     task = asyncio.Task(coro, loop=loop)
+
+    # noinspection PyUnresolvedReferences,PyProtectedMember
     if task._source_traceback:
+        # noinspection PyUnresolvedReferences,PyProtectedMember
         del task._source_traceback[-1]
 
     # Propagate only the X-Ray context to the new task, if present
