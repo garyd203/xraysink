@@ -29,7 +29,7 @@ def _context_aware_task_factory(loop, coro):
         # Propagate a copy of the current stack of entities (segment, plus
         # ordered subsegments). We don't want to share the same entity stack
         # amongst concurrent tasks, because that's just wrong.
-        new_context = {"entities": list(current_task.context["entities"])}
+        new_context = {"entities": list(current_task.context.get("entities", []))}
         setattr(task, "context", new_context)
 
     return task
