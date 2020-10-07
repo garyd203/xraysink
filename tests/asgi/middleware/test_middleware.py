@@ -10,7 +10,6 @@ import pytest
 import requests
 from async_asgi_testclient import TestClient
 from aws_xray_sdk import global_sdk_config
-from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
 from aws_xray_sdk.core.models import http
 from aws_xray_sdk.core.models.segment import Segment
 from starlette.status import HTTP_200_OK
@@ -64,25 +63,6 @@ async def client(request, aiohttp_client):
             client.headers["host"] = "127.0.0.1"
 
             yield client
-
-
-class CustomStubbedEmitter(UDPEmitter):
-    """
-    Custom stubbed emitter which stores all segments instead of the last one
-    """
-
-    def __init__(self, daemon_address="127.0.0.1:2000"):
-        super(CustomStubbedEmitter, self).__init__(daemon_address)
-        self.local = []
-
-    def send_entity(self, entity):
-        self.local.append(entity)
-
-    def pop(self):
-        try:
-            return self.local.pop(0)
-        except IndexError:
-            return None
 
 
 class TestRequestHandler:
@@ -262,8 +242,6 @@ class TestRequestHandler:
         self, client, recorder
     ):
         # Setup
-        recorder.emitter = CustomStubbedEmitter()
-
         async def get_response_with_delay():
             test_start = datetime.utcnow()
             server_response = await client.get("/delay")
@@ -286,7 +264,7 @@ class TestRequestHandler:
         )
 
         # Verify
-        ids = [item.id for item in recorder.emitter.local]
+        ids = [item.id for item in recorder.emitter.segments]
         assert len(ids) == len(set(ids)), "All ID's should be different"
 
     async def test_should_not_record_when_sdk_is_disabled(self, client, recorder):
