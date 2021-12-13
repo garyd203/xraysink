@@ -35,8 +35,8 @@ package manager. For example:
 
 ## How to use
 `xraysink` augments the functionality provided by `aws_xray_sdk`. Before
-using the tools in `xraysink`, you first need to configure `aws_xray_sdk`
-- this will probably involve calling `xray_recorder.configure()` when your
+using the tools in `xraysink`, you first need to configure `aws_xray_sdk` -
+this will probably involve calling `xray_recorder.configure()` when your
 process starts, and optionally `aws_xray_sdk.core.patch()`.
 
 Extra instrumentation provided by `xraysink` is described below.
