@@ -176,6 +176,14 @@ class TestRequestHandler:
         ],
     )
     async def test_should_record_4xx_client_error(self, client, recorder, path):
+        if (
+            "aiohttp" in type(client).__module__
+            and path == "/client_error_from_handled_exception"
+        ):
+            pytest.skip(
+                "aiohttp doesn't have custom application exception handler within the framework"
+            )
+
         # Exercise
         server_response = await client.get(path)
 
