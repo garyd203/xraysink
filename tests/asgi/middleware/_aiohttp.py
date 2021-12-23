@@ -42,11 +42,10 @@ class AioHttpServerFactory(object):
     async def handle_client_error_from_handled_exception(
         self, request: web.Request
     ) -> web.Response:
-        # aiohttp doesn't have the concept of handling exceptions in the framework
-        pytest.skip("aiohttp doesn't handle application exception's in the framework")
-        return web.Response(
-            text="This response will be ignored because the test was skipped"
-        )
+        # aiohttp doesn't have the concept of handling exceptions in the
+        # framework, so we can't model this scenario. We simply return a
+        # normal client error response here so that testing works.
+        return web.Response(text="This test case is irrelevant", status=422)
 
     async def handle_unauthorized(self, request: web.Request) -> web.Response:
         """
