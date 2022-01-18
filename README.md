@@ -104,7 +104,7 @@ you must ensure you use the fixed `AsyncContext` when configuring the recorder
 
 ### Process-Level Configuration
 You can link your X-Ray traces to your CloudWatch Logs log records, which
-enhances the integration with AWS CLoudWatch ServiceLens. Take the following
+enhances the integration with AWS CloudWatch ServiceLens. Take the following
 steps:
 
 1.  Put the X-Ray trace ID into every log message. There is no convention for
