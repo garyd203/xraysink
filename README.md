@@ -1,4 +1,4 @@
-# xraysink (aka `xray-asyncio`)
+# xraysink
 
 <p align="center">
     <a href="https://pypi.org/project/xraysink/">
