@@ -36,10 +36,12 @@ jobs:
         poetry run black --check src tests
 
   test:
+    name: Test (Py v${{ matrix.python-version }} / XRay SDK v${{ matrix.aws-xray-sdk-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        aws-xray-sdk-version: ["2.6", "2.7", "2.8", "2.9"]
 
     steps:
     - uses: actions/checkout@v2
@@ -56,7 +58,12 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
     - name: Install Dependencies
       run: |
+        # Install standard locked dependencies
         poetry install
+        # Replace key dependencies with a different version for matrix testing
+        if [ -n "${{ matrix.aws-xray-sdk-version }}" ] && [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
+          poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+        fi
     - name: Test
       id: pytest
       run: |
