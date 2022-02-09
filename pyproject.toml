@@ -1,6 +1,7 @@
 [tool.black]
 line-length = 88
-target_version = ["py36", "py37", "py38", "py39", "py310"]
+target-version = ["py36", "py37", "py38", "py39", "py310"]
+skip-magic-trailing-comma = true
 
 [tool.poetry]
 name = "xraysink"
@@ -41,7 +42,7 @@ aws_xray_sdk = "~2"
 wrapt = "^1.11"
 
 [tool.poetry.dev-dependencies]
-black = "==19.3b0"
+black = "==22.1.0"
 pytest = "^7"
 aiohttp = "^3"
 async-asgi-testclient = "^1.4.4"

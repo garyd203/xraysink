@@ -11,7 +11,7 @@ pytestmark = pytest.mark.asyncio
 
 
 async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent(
-    recorder
+    recorder,
 ):
     # Setup
     recorder.configure(context=AsyncContext(use_task_factory=True))
