@@ -43,7 +43,7 @@ wrapt = "^1.11"
 [tool.poetry.dev-dependencies]
 black = "==19.3b0"
 pytest = "^7"
-aiohttp = "~3"
+aiohttp = "^3"
 async-asgi-testclient = "^1.4.4"
 pytest-asyncio = "^0.14"
 starlette = "^0.17.1"
