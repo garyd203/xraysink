@@ -1,0 +1,63 @@
+name: Validate & Test
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  # Minimum major Python version supported by the library
+  # (bumped to the minimum version supported by github actions - see https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json )
+  MIN_PYTHON_VERSION: 3.6.7
+  POETRY_VERSION: 1.1.12
+
+jobs:
+  style-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ env.MIN_PYTHON_VERSION }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ env.MIN_PYTHON_VERSION }}
+    - name: Update pip
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff # v2.1.4
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
+    - name: Install Dependencies
+      run: |
+        poetry install
+    - name: Check Formatting
+      run: |
+        poetry run black --check src tests
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Update pip
+      run: |
+        python -m pip install --upgrade pip
+    - name: Install Poetry
+      uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff # v2.1.4
+      with:
+        poetry-version: ${{ env.POETRY_VERSION }}
+    - name: Install Dependencies
+      run: |
+        poetry install
+    - name: Test
+      id: pytest
+      run: |
+        poetry run pytest tests --junit-xml=build/test-results/pytest-main.xml
