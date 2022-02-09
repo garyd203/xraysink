@@ -37,6 +37,8 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
+# Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
+# workflow files if the minimum Python version changes.
 python = "^3.6.2"
 aws_xray_sdk = "~2"
 wrapt = "^1.11"
