@@ -234,7 +234,7 @@ class TestXrayTaskAsyncNested(BaseXrayTaskTests):
         async with recorder.in_segment_async("initial_segment"):
             coro = do_something(1, 2)
 
-        func_result, = await gather(coro, return_exceptions=True)
+        (func_result,) = await gather(coro, return_exceptions=True)
 
         # Verify
         assert func_result == 3, "Function result should be returned"
