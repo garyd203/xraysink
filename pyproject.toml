@@ -36,7 +36,7 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.6.2"
 aws_xray_sdk = "~2"
 wrapt = "^1.11"
 
@@ -46,8 +46,8 @@ pytest = "^6"
 aiohttp = "~3"
 async-asgi-testclient = "^1.4.4"
 pytest-asyncio = "^0.14"
-starlette = "^0.13"
-fastapi = "^0.58.1"
+starlette = "^0.17.1"
+fastapi = "^0.73"
 
 [build-system]
 requires = ["poetry>=1.0.3"]
