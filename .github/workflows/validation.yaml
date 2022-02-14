@@ -36,13 +36,30 @@ jobs:
         poetry run black --check src tests
 
   test:
-    name: Test (Py v${{ matrix.python-version }} / XRay SDK v${{ matrix.aws-xray-sdk-version }})
-    runs-on: ${{ matrix.os }}
+    name: Test (Py${{ matrix.python-version }} ${{ matrix.os-family }} - ${{ matrix.extra-test-title }} XRay v${{ matrix.aws-xray-sdk-version }})
+    runs-on: ${{ format('{0}-latest', matrix.os-family) }}
     strategy:
+      # We use branch-dependent matrix inputs to reduce the amount of tests
+      # that are run on PR's (every relevant combination is run when pushed
+      # to `master`).
+      #
+      # The variants are produced inline as a (json) dictionary, indexed by
+      # whether we are on a protected branch. Some notes about this technique:
+      #   - The only fields available for variant lookup are those on the
+      #     `github` context (see https://docs.github.com/en/actions/learn-github-actions/contexts#github-context)
+      #   - Specifically, we can't simplify our code here by generating the
+      #     lookup table as an environment variable in the top-level of this
+      #     file, because that is not available here.
+      #   - It has to be a single line within this file, or else the GitHub
+      #     YAML parser will wreck the JSON somehow.
+      #   - We need to encode the entire YAML value as a quoted string so that
+      #     we can use colon's inside it, which means internal double quotes
+      #     within the JSON string have to be escaped.
       matrix:
-        os: ["ubuntu-latest"]
+        os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
-        aws-xray-sdk-version: ["2.6", "2.7", "2.8", "2.9"]
+        aws-xray-sdk-version: "${{ fromJSON('{\"true\": [ \"2.6.0\", \"2.7.0\", \"2.8.0\", \"2.9.0\" ], \"false\": [ \"<existing>\" ]}')[github.ref_protected] }}"
+        fastapi-version: ["<existing>"]
 
     steps:
     - uses: actions/checkout@v2
