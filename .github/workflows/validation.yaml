@@ -30,7 +30,7 @@ jobs:
         poetry-version: ${{ env.POETRY_VERSION }}
     - name: Install Dependencies
       run: |
-        poetry install
+        poetry install -E stylecheck
     - name: Check Formatting
       run: |
         poetry run black --check src tests
