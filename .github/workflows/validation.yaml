@@ -103,7 +103,7 @@ jobs:
     - name: Install Standard Dependencies
       run: |
         poetry install
-    - name: Override Dependencies For Backward Compatibility Testing (Unix)
+    - name: Override Dependencies For Backward Compatibility Testing (Unix-like)
       if: matrix.os-family != 'windows'
       run: |
         if [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then

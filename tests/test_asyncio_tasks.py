@@ -46,19 +46,19 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
 
     assert (
         subsegments["short-task"].end_time - subsegments["long-task"].start_time
-    ) == approx(0.01, abs=0.1)
+    ) == approx(0.01, abs=0.2)
     assert not getattr(subsegments["short-task"], "error", False)
     assert not getattr(subsegments["short-task"], "fault", False)
 
     assert (
         subsegments["medium-task"].end_time - subsegments["long-task"].start_time
-    ) == approx(0.5, abs=0.1)
+    ) == approx(0.5, abs=0.2)
     assert not getattr(subsegments["medium-task"], "error", False)
     assert not getattr(subsegments["medium-task"], "fault", False)
 
     assert (
         subsegments["long-task"].end_time - subsegments["long-task"].start_time
-    ) == approx(2.0, abs=0.1)
+    ) == approx(2.0, abs=0.2)
     assert not getattr(subsegments["long-task"], "error", False)
     assert not getattr(subsegments["long-task"], "fault", False)
 
