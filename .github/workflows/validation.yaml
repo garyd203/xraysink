@@ -36,7 +36,7 @@ jobs:
         poetry run black --check src tests
 
   test:
-    name: Test (Py${{ matrix.python-version }} ${{ matrix.os-family }} - ${{ matrix.extra-test-title }} XRay v${{ matrix.aws-xray-sdk-version }})
+    name: Test (${{ matrix.extra-test-title }}Py${{ matrix.python-version }} ${{ matrix.os-family }} - XRay v${{ matrix.aws-xray-sdk-version }})
     runs-on: ${{ format('{0}-latest', matrix.os-family) }}
     strategy:
       # We use branch-dependent matrix inputs to reduce the amount of tests
@@ -59,7 +59,21 @@ jobs:
         os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"
         python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
         aws-xray-sdk-version: "${{ fromJSON('{\"true\": [ \"2.6.0\", \"2.7.0\", \"2.8.0\", \"2.9.0\" ], \"false\": [ \"<existing>\" ]}')[github.ref_protected] }}"
+        aiohttp-version: ["<existing>"]
         fastapi-version: ["<existing>"]
+        include:
+          - extra-test-title: "FastAPI v0.47: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "0.47.1"
+          - extra-test-title: "aiohttp v3.0.9: "
+            os-family: ubuntu
+            python-version: "3.6"
+            aws-xray-sdk-version: "2.6.0"
+            aiohttp-version: "3.0.9"
+            fastapi-version: "<existing>"
 
     steps:
     - uses: actions/checkout@v2
@@ -81,6 +95,12 @@ jobs:
         # Replace key dependencies with a different version for matrix testing
         if [ -n "${{ matrix.aws-xray-sdk-version }}" ] && [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
           poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+        fi
+        if [ -n "${{ matrix.fastapi-version }}" ] && [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
+          poetry add --dev fastapi="${{ matrix.fastapi-version }}"
+        fi
+        if [ -n "${{ matrix.aiohttp-version }}" ] && [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
+          poetry add --dev aiohttp="${{ matrix.aiohttp-version }}"
         fi
     - name: Test
       id: pytest
