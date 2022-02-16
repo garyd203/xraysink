@@ -88,20 +88,33 @@ jobs:
       uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff # v2.1.4
       with:
         poetry-version: ${{ env.POETRY_VERSION }}
-    - name: Install Dependencies
+    - name: Install Standard Dependencies
       run: |
-        # Install standard locked dependencies
         poetry install
-        # Replace key dependencies with a different version for matrix testing
-        if [ -n "${{ matrix.aws-xray-sdk-version }}" ] && [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
+    - name: Override Dependencies For Backward Compatibility Testing (Unix)
+      if: matrix.os-family != 'windows'
+      run: |
+        if [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
           poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
         fi
-        if [ -n "${{ matrix.fastapi-version }}" ] && [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
+        if [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
           poetry add --dev fastapi="${{ matrix.fastapi-version }}"
         fi
-        if [ -n "${{ matrix.aiohttp-version }}" ] && [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
+        if [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
           poetry add --dev aiohttp="${{ matrix.aiohttp-version }}"
         fi
+    - name: Override Dependencies For Backward Compatibility Testing (Windows)
+      if: matrix.os-family == 'windows'
+      run: |
+        if ("${{ matrix.aws-xray-sdk-version }}" -ne "<existing>" ) {
+          poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+        }
+        if ("${{ matrix.fastapi-version }}" -ne "<existing>" ) {
+          poetry add fastapi="${{ matrix.fastapi-version }}"
+        }
+        if ("${{ matrix.aiohttp-version }}" -ne "<existing>" ) {
+          poetry add aiohttp="${{ matrix.aiohttp-version }}"
+        }
     - name: Test
       id: pytest
       run: |
