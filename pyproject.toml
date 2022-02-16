@@ -41,15 +41,20 @@ packages = [
 # workflow files if the minimum Python version changes.
 python = "^3.6.2"
 aws_xray_sdk = "~2"
+black = { version = "==22.1.0", optional = true }
 wrapt = "^1.11"
 
 [tool.poetry.dev-dependencies]
-black = "==22.1.0"
 pytest = "^7"
 aiohttp = "^3"
 async-asgi-testclient = "^1.4.4"
 pytest-asyncio = "^0.14"
 fastapi = "^0.73"
+
+[tool.poetry.extras]
+stylecheck = [
+    "black",
+]
 
 [build-system]
 requires = ["poetry>=1.1.12"]
