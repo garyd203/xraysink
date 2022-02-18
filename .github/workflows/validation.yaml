@@ -33,7 +33,11 @@ jobs:
         poetry install -E stylecheck
     - name: Check Formatting
       run: |
+        # NB: Format before style check
         poetry run black --check src tests
+    - name: General Style Checks (Flake8)
+      run: |
+        poetry run flake8 --benchmark
 
   test:
     name: Test (${{ matrix.extra-test-title }}Py${{ matrix.python-version }} ${{ matrix.os-family }} - XRay v${{ matrix.aws-xray-sdk-version }})
