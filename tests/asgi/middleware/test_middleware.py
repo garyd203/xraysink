@@ -28,7 +28,7 @@ pytestmark = pytest.mark.asyncio
 # plugin (like yet another `loop`).
 #
 # noinspection PyUnresolvedReferences
-from aiohttp.pytest_plugin import aiohttp_client
+from aiohttp.pytest_plugin import aiohttp_client  # noqa:  E402,F401
 
 
 # Inject a `loop` fixture based on the normal `event_loop` fixture,
@@ -44,7 +44,7 @@ async def loop(event_loop):
         pytest.param(fastapi_native_middleware_factory, id="fastapi"),
     ]
 )
-async def client(request, aiohttp_client):
+async def client(request, aiohttp_client):  # noqa: F811
     """Get a client for each of the server frameworks under test."""
     appfactory = request.param
     app = appfactory()

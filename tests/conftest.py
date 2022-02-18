@@ -11,7 +11,9 @@ from .xray_util import get_new_stubbed_recorder
 
 @pytest.fixture
 def caplog(caplog):
-    """Override the standard caplog fixture to provide a more sensible default level on the root logger."""
+    """
+    Override the standard caplog fixture to have a more sensible default level on the root logger.
+    """
     caplog.set_level(logging.DEBUG)
     return caplog
 

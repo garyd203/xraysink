@@ -1,7 +1,6 @@
 # From https://github.com/aws/aws-xray-sdk-python/blob/master/tests/util.py
 
 import json
-import threading
 
 from aws_xray_sdk.core.emitters.udp_emitter import UDPEmitter
 from aws_xray_sdk.core.recorder import AWSXRayRecorder

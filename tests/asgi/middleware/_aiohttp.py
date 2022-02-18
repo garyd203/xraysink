@@ -2,7 +2,6 @@
 
 import asyncio
 
-import pytest
 from aiohttp import web
 from aiohttp.web_exceptions import HTTPUnauthorized
 from aiohttp.web_exceptions import HTTPUnprocessableEntity
