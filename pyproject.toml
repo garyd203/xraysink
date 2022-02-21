@@ -3,6 +3,11 @@ line-length = 88
 target-version = ["py36", "py37", "py38", "py39", "py310"]
 skip-magic-trailing-comma = true
 
+
+[tool.zimports]
+black-line-length = 88
+
+
 [tool.poetry]
 name = "xraysink"
 version = "1.5.0-beta"
@@ -44,6 +49,8 @@ aws_xray_sdk = "~2"
 black = { version = "==22.1.0", optional = true }
 flake8 = { version = "~4", optional = true }
 wrapt = "^1.11"
+flake8-import-order = { version = "~0.18", optional = true }
+zimports = { version = "~0.5", markers = "python_version >= '3.7'", optional = true }
 
 [tool.poetry.dev-dependencies]
 pytest = "^7"
@@ -56,6 +63,8 @@ fastapi = "^0.73"
 stylecheck = [
     "black",
     "flake8",
+    "flake8-import-order",
+    "zimports",
 ]
 
 [build-system]
