@@ -8,6 +8,7 @@ from urllib.parse import urlparse
 import aiohttp.web_app
 import pytest
 import requests
+from aiohttp.pytest_plugin import aiohttp_client  # noqa: F401
 from async_asgi_testclient import TestClient
 from aws_xray_sdk import global_sdk_config
 from aws_xray_sdk.core.models import http
@@ -20,18 +21,18 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from ._aiohttp import AioHttpServerFactory
 from ._fastapi import fastapi_native_middleware_factory
 
+
 pytestmark = pytest.mark.asyncio
 
 
-# Import just the client helper fixture from aiohttp, without polluting our
+# aiohttp Testing
+# ---------------
+#
+# We import just the client helper fixture from aiohttp, without polluting our
 # fixture namespace with all the cray-cray in the `pytest-aiohttp` pytest
 # plugin (like yet another `loop`).
 #
-# noinspection PyUnresolvedReferences
-from aiohttp.pytest_plugin import aiohttp_client  # noqa:  E402,F401
-
-
-# Inject a `loop` fixture based on the normal `event_loop` fixture,
+# We also have to inject a `loop` fixture based on the normal `event_loop` fixture,
 # since aiohttp_client has this as a fixture dependency
 @pytest.fixture
 async def loop(event_loop):
