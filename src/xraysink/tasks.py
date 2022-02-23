@@ -17,7 +17,7 @@ from .util import has_current_trace
 TASK_SCHEME: str = "task"
 
 #: Format string for the synthetic URL's used by background tasks.
-TASK_URL_FORMAT: str = TASK_SCHEME + "://localhost/{task_path}"
+TASK_URL_FORMAT: str = TASK_SCHEME + "://localhost/{task_path}"  # noqa: FS003
 
 
 def xray_task_async(*, _url_path: Optional[str] = None):
