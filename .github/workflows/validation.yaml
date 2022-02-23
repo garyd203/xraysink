@@ -52,7 +52,6 @@ jobs:
       ${{ matrix.extra-test-title }}
       Py${{ matrix.python-version }}
       ${{ matrix.os-family }}
-      - XRay v${{ matrix.aws-xray-sdk-version }}
       )
     runs-on: ${{ format('{0}-latest', matrix.os-family) }}
     strategy:
@@ -76,7 +75,7 @@ jobs:
       matrix:
         os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
         python-version: [ "3.6", "3.7", "3.8", "3.9", "3.10" ]
-        aws-xray-sdk-version: "${{ fromJSON('{\"true\": [ \"2.6.0\", \"2.7.0\", \"2.8.0\", \"2.9.0\" ], \"false\": [ \"<existing>\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
+        aws-xray-sdk-version: [ "<existing>" ]
         aiohttp-version: [ "<existing>" ]
         fastapi-version: [ "<existing>" ]
         include:
@@ -89,6 +88,25 @@ jobs:
           - os-family: windows
             python-version: "3.10"
             aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          # Extra test variations for older versions of the AWS X-Ray SDK
+          - extra-test-title: "X-Ray SDK v2.6: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.6"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.7: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.7"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.8: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.8"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           # Extra test variations for older versions of 3rd-party libraries we integrate with
