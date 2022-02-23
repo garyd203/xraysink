@@ -9,7 +9,7 @@ from aws_xray_sdk.core.async_recorder import AsyncAWSXRayRecorder
 from .xray_util import get_new_stubbed_recorder
 
 
-@pytest.fixture
+@pytest.fixture()
 def caplog(caplog):
     """
     Override the standard caplog fixture to have a more sensible default level on the root logger.
@@ -18,7 +18,7 @@ def caplog(caplog):
     return caplog
 
 
-@pytest.fixture
+@pytest.fixture()
 def recorder(event_loop) -> AsyncAWSXRayRecorder:
     """An X-Ray recorder with local-only, stubbed, segment collection."""
     xray_recorder = get_new_stubbed_recorder()

@@ -34,9 +34,9 @@ pytestmark = pytest.mark.asyncio
 #
 # We also have to inject a `loop` fixture based on the normal `event_loop` fixture,
 # since aiohttp_client has this as a fixture dependency
-@pytest.fixture
+@pytest.fixture()
 async def loop(event_loop):
-    yield event_loop
+    return event_loop
 
 
 @pytest.fixture(
@@ -78,7 +78,7 @@ class TestRequestHandler:
         elif hasattr(response, "status_code"):
             assert response.status_code == status, response.text
         else:
-            assert False, "Unknown response object type"
+            pytest.fail("Unknown response object type")
 
     def _verify_xray_request(
         self,
