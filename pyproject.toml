@@ -54,6 +54,7 @@ flake8-comprehensions = { version = "~3.8", markers = "python_version >= '3.7'",
 flake8-eradicate = { version = "~1.2", optional = true }
 flake8-executable = { version = "~2.1", optional = true }
 flake8-import-order = { version = "~0.18", optional = true }
+flake8-simplify = { version = "~0.18", optional = true }
 zimports = { version = "~0.5", markers = "python_version >= '3.7'", optional = true }
 
 [tool.poetry.dev-dependencies]
@@ -72,6 +73,7 @@ stylecheck = [
     "flake8-eradicate",
     "flake8-executable",
     "flake8-import-order",
+    "flake8-simplify",
     "zimports",
 ]
 

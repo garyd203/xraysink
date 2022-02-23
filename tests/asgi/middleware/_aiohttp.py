@@ -9,7 +9,7 @@ from aiohttp.web_exceptions import HTTPUnprocessableEntity
 from xraysink.asgi.middleware import xray_middleware
 
 
-class AioHttpServerFactory(object):
+class AioHttpServerFactory:
     """
     Factory for an xray-instrumented aiohttp Application's
     that implements our test endpoints.
