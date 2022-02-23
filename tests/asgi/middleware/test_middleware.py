@@ -137,7 +137,7 @@ class TestRequestHandler:
 
         # Verify
         segment = recorder.emitter.pop()
-        expected_root = "Root=%s" % segment.trace_id
+        expected_root = f"Root={segment.trace_id}"
 
         xray_header = server_response.headers[http.XRAY_HEADER]
         assert expected_root in xray_header
