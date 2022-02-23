@@ -288,6 +288,20 @@ flake8 = ">=3.0.0"
 dev = ["coverage", "hypothesis", "hypothesmith (>=0.2)", "pre-commit"]
 
 [[package]]
+name = "flake8-builtins"
+version = "1.5.3"
+description = "Check for python builtins being used as variables or parameters."
+category = "main"
+optional = true
+python-versions = "*"
+
+[package.dependencies]
+flake8 = "*"
+
+[package.extras]
+test = ["coverage", "coveralls", "mock", "pytest", "pytest-cov"]
+
+[[package]]
 name = "flake8-comprehensions"
 version = "3.8.0"
 description = "A flake8 plugin to help you write better list/set/dict comprehensions."
@@ -752,12 +766,12 @@ docs = ["sphinx", "jaraco.packaging (>=8.2)", "rst.linker (>=1.9)"]
 testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "jaraco.itertools", "func-timeout", "pytest-black (>=0.3.7)", "pytest-mypy"]
 
 [extras]
-stylecheck = ["black", "flake8", "flake8-bugbear", "flake8-comprehensions", "flake8-eradicate", "flake8-executable", "flake8-import-order", "flake8-pytest-style", "flake8-simplify", "zimports"]
+stylecheck = ["black", "flake8", "flake8-bugbear", "flake8-builtins", "flake8-comprehensions", "flake8-eradicate", "flake8-executable", "flake8-import-order", "flake8-pytest-style", "flake8-simplify", "zimports"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.6.2"
-content-hash = "007823c2591eb9f983a18ec6c2403515f6ac1b1c038507b4ebc399d487be1145"
+content-hash = "c5a843c97a497997bbfa817785edf52cb6a4242a1e16df4871dd996e7cf72f04"
 
 [metadata.files]
 aiohttp = [
@@ -939,6 +953,10 @@ flake8 = [
 flake8-bugbear = [
     {file = "flake8-bugbear-22.1.11.tar.gz", hash = "sha256:4c2a4136bd4ecb8bf02d5159af302ffc067642784c9d0488b33ce4610da825ee"},
     {file = "flake8_bugbear-22.1.11-py3-none-any.whl", hash = "sha256:ce7ae44aaaf67ef192b8a6de94a5ac617144e1675ad0654fdea556f48dc18d9b"},
+]
+flake8-builtins = [
+    {file = "flake8-builtins-1.5.3.tar.gz", hash = "sha256:09998853b2405e98e61d2ff3027c47033adbdc17f9fe44ca58443d876eb00f3b"},
+    {file = "flake8_builtins-1.5.3-py2.py3-none-any.whl", hash = "sha256:7706babee43879320376861897e5d1468e396a40b8918ed7bccf70e5f90b8687"},
 ]
 flake8-comprehensions = [
     {file = "flake8-comprehensions-3.8.0.tar.gz", hash = "sha256:8e108707637b1d13734f38e03435984f6b7854fa6b5a4e34f93e69534be8e521"},
