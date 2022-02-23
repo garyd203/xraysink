@@ -50,6 +50,9 @@ black = { version = "==22.1.0", optional = true }
 flake8 = { version = "~4", optional = true }
 wrapt = "^1.11"
 flake8-bugbear = { version = ">=22.1.11", optional = true }
+flake8-comprehensions = { version = "~3.8", markers = "python_version >= '3.7'", optional = true }
+flake8-eradicate = { version = "~1.2", optional = true }
+flake8-executable = { version = "~2.1", optional = true }
 flake8-import-order = { version = "~0.18", optional = true }
 zimports = { version = "~0.5", markers = "python_version >= '3.7'", optional = true }
 
@@ -65,6 +68,9 @@ stylecheck = [
     "black",
     "flake8",
     "flake8-bugbear",
+    "flake8-comprehensions",
+    "flake8-eradicate",
+    "flake8-executable",
     "flake8-import-order",
     "zimports",
 ]
