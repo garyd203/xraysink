@@ -152,7 +152,7 @@ class TestXrayTaskAsync(BaseXrayTaskTests):
             raise ValueError(42)
 
         # Exercise
-        with pytest.raises(ValueError):
+        with pytest.raises(ValueError):  # noqa: PT011
             await do_something()
 
         # Verify
@@ -168,11 +168,11 @@ class TestXrayTaskAsync(BaseXrayTaskTests):
 class TestXrayTaskAsyncNested(BaseXrayTaskTests):
     """Test the xray_task_async() decorator when nested inside an existing segment."""
 
-    @pytest.fixture
+    @pytest.fixture()
     def recorder(self, recorder) -> AsyncAWSXRayRecorder:
         # Nested tasks will only work if we are using a well-behaved context
         recorder.configure(context=AsyncContext())
-        yield recorder
+        return recorder
 
     async def _verify_nested_segment(self, segments, initial_name: str, task_name):
         """Verify the X-Ray entities created by a nested task."""
