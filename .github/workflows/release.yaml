@@ -1,0 +1,66 @@
+---
+name: Release
+
+# TODO tweak github token permissions
+# TODO concurrency - only 1 at a time
+
+"on":
+  workflow_dispatch
+
+jobs:
+  check-branch:
+    name: "Check For 'master'"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Abort release against non-master
+        if: github.ref != 'refs/heads/master'
+        run: |
+          echo "Release should only be against master, not '${GITHUB_REF}'"
+          exit 1
+
+  version-stamp:
+    # TODO bumpversion and commit, also git tag, "[no ci]" in commit message
+    # TODO test after bump, so we test the thing we release
+    # TODO note that we do git tag + release here before we do the actual pypi publish. if the publish step fails, we don't care if github contains a phantom release
+    name: Version Stamp
+    needs:
+      - check-branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: FIXME
+        run: |
+          echo FIXME
+
+  test-source:
+    # FIXME run tests again. need a reusbale workflow
+    # FIXME needs the updated code. pass the actual ref  (not `master` or tag) forwards as an output
+    name: Test
+    needs:
+      - version-stamp
+    runs-on: ubuntu-latest
+    steps:
+      - name: FIXME
+        run: |
+          echo FIXME
+
+  publish:
+    # TODO use github environment to contorl test vs. live pypi
+    name: Publish Library
+    needs:
+      - test
+    runs-on: ubuntu-latest
+    steps:
+      - name: FIXME
+        run: |
+          echo FIXME
+
+  bump-to-prerelease:
+    name: Setup Next Release
+    needs:
+      - publish
+    runs-on: ubuntu-latest
+    steps:
+      # pip install bump2version==1.0.1
+      - name: FIXME
+        run: |
+          echo FIXME
