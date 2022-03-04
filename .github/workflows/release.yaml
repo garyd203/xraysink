@@ -167,3 +167,23 @@ jobs:
       - name: FIXME
         run: |
           echo FIXME
+
+  test-release:
+    name: Test Published Artifact (${{ matrix.os-family }})
+    needs:
+      - publish
+    runs-on: ${{ format('{0}-latest', matrix.os-family) }}
+    strategy:
+      matrix:
+        os-family: [ "ubuntu", "windows", "macos" ]
+    steps:
+      - name: Set up Python
+        uses: actions/setup-python@v2
+      - name: Install Build wheel
+        run: |
+          pip install xraysink==${{ needs.publish.outputs.release-version }}
+      - name: Smoke Test
+        shell: python
+        run: |
+          from xraysink.config import set_xray_log_group
+          set_xray_log_group("/xraysink/example")
