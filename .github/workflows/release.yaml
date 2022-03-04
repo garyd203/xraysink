@@ -1,8 +1,11 @@
 ---
 name: Release
 
-# TODO tweak github token permissions
-# TODO concurrency - only 1 at a time
+env:
+  BUMPVERSION_VERSION: 1.0.1
+  POETRY_VERSION: 1.1.12
+  # Python version used to build the library
+  PYTHON_BUILD_VERSION: 3.6
 
 "on":
   workflow_dispatch
