@@ -68,13 +68,45 @@ jobs:
         run: |
           echo FIXME
 
+  build:
+    name: Build Library
+    needs:
+      - version-stamp
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.version-stamp.outputs.release-ref }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff  # v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
+      - name: Build wheel etc.
+        run: |
+          poetry build
+          ls -l dist
+      - name: Upload artifacts for publish
+        uses: actions/upload-artifact@v3
+        with:
+          name: poetry-build
+          path: ./dist/xraysink-*
+
   publish:
     # TODO use github environment to contorl test vs. live pypi
     name: Publish Library
     needs:
+      - build
       - test
     runs-on: ubuntu-latest
     steps:
+      - name: Publish wheel etc.
+        run: |
+          # FIXME
+          # poetry publish
       - name: FIXME
         run: |
           echo FIXME
