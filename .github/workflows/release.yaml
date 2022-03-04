@@ -58,13 +58,16 @@ jobs:
 
   test-source:
     # FIXME run tests again. need a reusbale workflow
-    # FIXME needs the updated code. pass the actual ref  (not `master` or tag) forwards as an output
+    # TODO maybe only a subset of tests? in theory master is already well-tested
     name: Test
     needs:
       - version-stamp
     runs-on: ubuntu-latest
     steps:
-      - name: FIXME
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.version-stamp.outputs.release-ref }}
+      - name: FIXME - need to run actual tests
         run: |
           echo FIXME
 
