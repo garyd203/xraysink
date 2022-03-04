@@ -95,6 +95,31 @@ jobs:
           name: poetry-build
           path: ./dist/xraysink-*
 
+  test-build:
+    name: Test Build Artifact
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download built artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: poetry-build
+          path: dist
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Install locally built wheel
+        run: |
+          pip install *.whl
+        working-directory: dist
+      - name: Smoke Test
+        shell: python
+        run: |
+          from xraysink.config import set_xray_log_group
+          set_xray_log_group("/xraysink/example")
+
   publish:
     name: Publish Library
     needs:
