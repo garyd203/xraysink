@@ -22,17 +22,39 @@ jobs:
           exit 1
 
   version-stamp:
-    # TODO bumpversion and commit, also git tag, "[no ci]" in commit message
-    # TODO test after bump, so we test the thing we release
-    # TODO note that we do git tag + release here before we do the actual pypi publish. if the publish step fails, we don't care if github contains a phantom release
     name: Version Stamp
+    # We push the git tag release here before we do the actual pypi publish. If the publish step
+    # fails, it doesn't really matter if git contains a phantom release
     needs:
       - check-branch
     runs-on: ubuntu-latest
+    outputs:
+      release-ref: ${{ steps.export-git-ref.outputs.release-ref }}
     steps:
-      - name: FIXME
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Install bump2version
         run: |
-          echo FIXME
+          pip install bump2version==${{ env.BUMPVERSION_VERSION }}
+      - name: Bump version
+        run: |
+          bumpversion prerelease --verbose --commit --tag
+      - name: Push to git
+        uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ github.token }}
+          branch: ${{ github.head_ref || github.ref }}
+          tags: true
+      - name: Export stamped git ref
+        id: export-git-ref
+        run: |
+          NEW_GIT_SHA=$(git rev-parse HEAD)
+          echo "::set-output name=release-ref::$NEW_GIT_SHA"
 
   test-source:
     # FIXME run tests again. need a reusbale workflow
