@@ -96,20 +96,41 @@ jobs:
           path: ./dist/xraysink-*
 
   publish:
-    # TODO use github environment to contorl test vs. live pypi
     name: Publish Library
     needs:
       - build
-      - test
+      - test-build
+      - test-source
     runs-on: ubuntu-latest
+    environment: pypi-live
+    outputs:
+      release-version: ${{ steps.export-version.outputs.release-version }}
     steps:
+      - uses: actions/checkout@v2
+        with:
+          ref: ${{ needs.version-stamp.outputs.release-ref }}
+      - name: Download built artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: poetry-build
+          path: dist
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_BUILD_VERSION }}
+      - name: Install Poetry
+        uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff  # v2.1.4
+        with:
+          poetry-version: ${{ env.POETRY_VERSION }}
       - name: Publish wheel etc.
         run: |
-          # FIXME
-          # poetry publish
-      - name: FIXME
+          poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }} --no-interaction
+      - name: Export published version
+        id: export-version
         run: |
-          echo FIXME
+          PYPI_VERSION=$(ls -l dist/*.tar.gz | tail -n 1 | sed -r s,"^.*-(.+)\.tar\.gz$","\1",)
+          echo "Published xraysink v${PYPI_VERSION} to PyPI"
+          echo "::set-output name=release-version::$PYPI_VERSION"
 
   bump-to-prerelease:
     name: Setup Next Release
