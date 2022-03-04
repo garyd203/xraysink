@@ -1,6 +1,9 @@
 ---
 name: Release
 
+# The release workflow should only be run sequentially
+concurrency: release
+
 env:
   BUMPVERSION_VERSION: 1.0.1
   POETRY_VERSION: 1.1.12
