@@ -1,4 +1,7 @@
 ---
+# TODO tweak github token permissions
+# TODO pin action versions to SHA
+
 name: Release
 
 # The release workflow should only be run sequentially
@@ -208,6 +211,7 @@ jobs:
           pip install xraysink==${{ needs.publish.outputs.release-version }}
       - name: Smoke Test
         shell: python
+        # TODO check __version__ in published file
         run: |
           from xraysink.config import set_xray_log_group
           set_xray_log_group("/xraysink/example")
