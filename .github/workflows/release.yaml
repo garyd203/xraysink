@@ -51,6 +51,10 @@ jobs:
       - name: Bump version
         run: |
           bumpversion prerelease --verbose --commit --tag
+      - name: Check non-beta version
+        run: |
+          # Verify this is not a beta/RC version
+          poetry version --short | grep "$[0-9]+[.][0-9]+[.][0-9]+$"
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
