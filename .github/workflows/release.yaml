@@ -58,7 +58,7 @@ jobs:
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.GITHUB_PUSH_TOKEN }}
+          github_token: ${{ secrets.PUSH_TOKEN_TO_GITHUB }}
           branch: ${{ github.head_ref || github.ref }}
           tags: true
       - name: Export stamped git ref
@@ -197,7 +197,7 @@ jobs:
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
-          github_token: ${{ secrets.GITHUB_PUSH_TOKEN }}
+          github_token: ${{ secrets.PUSH_TOKEN_TO_GITHUB }}
           branch: ${{ github.head_ref || github.ref }}
           tags: true
 
