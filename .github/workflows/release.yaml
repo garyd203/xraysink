@@ -52,9 +52,13 @@ jobs:
         run: |
           bumpversion prerelease --verbose --commit --tag
       - name: Check non-beta version
+        shell: python
         run: |
-          # Verify this is not a beta/RC version
-          poetry version --short | grep "$[0-9]+[.][0-9]+[.][0-9]+$"
+          import xraysink
+          import re
+          if not re.match(r"^\d+[.]\d+[.]\d+$", xraysink.__version__):
+              print(f"Version is not final: {xraysink.__version__}")
+              exit(1)
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
