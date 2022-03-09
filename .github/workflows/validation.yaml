@@ -1,6 +1,8 @@
 ---
 name: Validate
 
+# TODO concurrency - cancel existing run on same branch
+
 "on":
   push:
     branches:
