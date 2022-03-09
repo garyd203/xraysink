@@ -5,6 +5,7 @@
 name: Release
 
 # The release workflow should only be run sequentially
+# TODO cancel subsequent runs - makes no sense
 concurrency: release
 
 env:
