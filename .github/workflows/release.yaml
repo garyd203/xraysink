@@ -59,6 +59,7 @@ jobs:
           if not re.match(r"^\d+[.]\d+[.]\d+$", xraysink.__version__):
               print(f"Version is not final: {xraysink.__version__}")
               exit(1)
+        working-directory: ./src
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
