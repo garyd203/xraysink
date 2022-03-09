@@ -11,7 +11,7 @@ env:
   BUMPVERSION_VERSION: 1.0.1
   POETRY_VERSION: 1.1.12
   # Python version used to build the library
-  PYTHON_BUILD_VERSION: 3.6
+  PYTHON_BUILD_VERSION: 3.9
 
 "on":
   workflow_dispatch
@@ -54,12 +54,14 @@ jobs:
       - name: Check non-beta version
         shell: python
         run: |
-          import xraysink
+          import os
           import re
+          import sys
+          sys.path.append(os.path.join(os.getcwd(), "src"))
+          import xraysink
           if not re.match(r"^\d+[.]\d+[.]\d+$", xraysink.__version__):
               print(f"Version is not final: {xraysink.__version__}")
               exit(1)
-        working-directory: ./src
       - name: Push to git
         uses: ad-m/github-push-action@v0.6.0
         with:
