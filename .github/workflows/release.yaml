@@ -162,17 +162,11 @@ jobs:
         with:
           name: poetry-build
           path: dist
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: pypi-publish
+        uses: pypa/gh-action-pypi-publish@v1.5.0
         with:
-          python-version: ${{ env.PYTHON_BUILD_VERSION }}
-      - name: Install Poetry
-        uses: abatilo/actions-poetry@7044c9c69e0265717d52471f66033b8d0e2a69ff  # v2.1.4
-        with:
-          poetry-version: ${{ env.POETRY_VERSION }}
-      - name: Publish wheel etc.
-        run: |
-          poetry publish -u __token__ -p ${{ secrets.PYPI_TOKEN }} --no-interaction
+          user: __token__
+          password: ${{ secrets.PYPI_TOKEN }}
       - name: Export published version
         id: export-version
         run: |
