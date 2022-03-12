@@ -168,4 +168,6 @@ jobs:
       - name: Test
         id: pytest
         run: |
-          poetry run pytest tests --junit-xml=build/test-results/pytest-main.xml
+          poetry run pytest tests \
+            --cov=xraysink --cov-report= \
+            --junit-xml=build/test-results/pytest-main.xml
