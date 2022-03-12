@@ -101,11 +101,3 @@ stylecheck = [
 [build-system]
 requires = ["poetry>=1.1.12"]
 build-backend = "poetry.masonry.api"
-
-
-[tool.coverage.run]
-branch = true
-source = [ "xraysink" ]
-
-[tool.coverage.report]
-skip_empty = true
