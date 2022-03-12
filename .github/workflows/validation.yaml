@@ -81,6 +81,13 @@ jobs:
         aiohttp-version: [ "<existing>" ]
         fastapi-version: [ "<existing>" ]
         include:
+          # Export test results from the primary configuration
+          - os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "<existing>"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+            has-authoritative-test-results: true
           # Always test each OS at least once on PR
           - os-family: macos
             python-version: "3.10"
@@ -166,8 +173,14 @@ jobs:
             poetry add aiohttp="${{ matrix.aiohttp-version }}"
           }
       - name: Test
-        id: pytest
+        # yamllint disable rule:line-length
         run: |
-          poetry run pytest tests \
-            --cov=xraysink --cov-report= \
-            --junit-xml=build/test-results/pytest-main.xml
+          poetry run pytest tests --cov=xraysink --cov-report= --junit-xml=build/test-results/pytest-main.xml
+        # yamllint enable rule:line-length
+
+      - name: Coverage comment
+        if: ${{ matrix.has-authoritative-test-results }}
+        id: coverage_comment
+        uses: ewjoachim/python-coverage-comment-action@v2
+        with:
+          GITHUB_TOKEN: ${{ github.token }}
