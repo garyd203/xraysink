@@ -69,8 +69,13 @@ zimports = { version = "~0.5", markers = "python_version >= '3.7'", optional = t
 pytest = "^7"
 aiohttp = "^3"
 async-asgi-testclient = "^1.4.4"
-pytest-asyncio = "^0.14"
+coverage = [
+    { version = "^6.3", markers = "python_version >= '3.7'", extras=["toml"] },
+    { version = "~6.2", markers = "python_version < '3.7'", extras=["toml"] },
+]
 fastapi = "^0.73"
+pytest-asyncio = "^0.14"
+pytest-cov = { version = "^3.0" }
 
 [tool.poetry.extras]
 stylecheck = [
