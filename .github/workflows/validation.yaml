@@ -164,13 +164,13 @@ jobs:
         if: matrix.os-family == 'windows'
         run: |
           if ("${{ matrix.aws-xray-sdk-version }}" -ne "<existing>" ) {
-            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+            poetry add --dev aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
           }
           if ("${{ matrix.fastapi-version }}" -ne "<existing>" ) {
-            poetry add fastapi="${{ matrix.fastapi-version }}"
+            poetry add --dev fastapi="${{ matrix.fastapi-version }}"
           }
           if ("${{ matrix.aiohttp-version }}" -ne "<existing>" ) {
-            poetry add aiohttp="${{ matrix.aiohttp-version }}"
+            poetry add --dev aiohttp="${{ matrix.aiohttp-version }}"
           }
       - name: Test
         # yamllint disable rule:line-length
