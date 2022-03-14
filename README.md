@@ -1,6 +1,6 @@
 # xraysink
 
-<p align="center">
+<div align="center">
     <a href="https://pypi.org/project/xraysink/">
         <img src="https://img.shields.io/pypi/v/xraysink.svg" alt="Package version">
     </a>
@@ -10,7 +10,13 @@
     <a href="https://pypi.org/project/xraysink/">
         <img src="https://img.shields.io/pypi/dm/xraysink.svg" alt="Monthly downloads">
     </a>
-</p>
+</div>
+<div align="center">
+    <!-- Coverage badge stored in our wiki by the python-coverage-comment-action plugin -->
+    <a href="https://github.com/garyd203/xraysink/">
+        <img src="https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/wiki/garyd203/xraysink/python-coverage-comment-action-badge.json" alt="Coverage">
+    </a>
+</div>
 
 Extra AWS X-Ray instrumentation to use distributed tracing with asyncio Python
 libraries that are not (yet) supported by the official
