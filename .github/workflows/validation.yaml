@@ -175,12 +175,31 @@ jobs:
       - name: Test
         # yamllint disable rule:line-length
         run: |
-          poetry run pytest tests --cov=xraysink --cov-report= --junit-xml=build/test-results/pytest-main.xml
+          poetry run pytest tests --cov=xraysink --cov-report= --junit-xml=test-results/junit/pytest.xml --disable-warnings
         # yamllint enable rule:line-length
+
+      - name: Annotate Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v1
+        if: ${{ always() &&  github.event_name == 'pull_request' && matrix.has-authoritative-test-results }}  # yamllint disable-line rule:line-length
+        with:
+          files: "test-results/**/*.xml"
+          check_name: "Combined Test Report"
+          comment_title: "Test Report"
+          # Report all failures for a given test, to include different results
+          # from matrix jobs and parametrised tests.
+          report_individual_runs: true
+          # Class name should be interpreted within the scope of the file. This ain't Java.
+          deduplicate_classes_by_file_name: true
+          # Make all links go to the final file, not the commit.
+          compare_to_earlier_commit: false
+          # Explicitly use the over-powerful default token
+          # TODO Pull this step out to use a follow-up job with a restricted token, mutter mutter
+          github_token: ${{ github.token }}
 
       - name: Coverage comment
         if: ${{ matrix.has-authoritative-test-results }}
         id: coverage_comment
         uses: ewjoachim/python-coverage-comment-action@v2
+        # TODO Pull this step out to use a follow-up job with a restricted token, mutter mutter
         with:
           GITHUB_TOKEN: ${{ github.token }}
