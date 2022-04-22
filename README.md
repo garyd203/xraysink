@@ -82,7 +82,7 @@ Use the fixed `AsyncContext` from `xraysink` as a drop-in replacement, like so:
 If your process starts background tasks that make network calls (eg. to the
 database or an API in another service), then each execution of one of those
 tasks should be treated as a new X-Ray trace. Indeed, if you don't do so then
-you will likely get context_missing errors.
+you will likely get `context_missing` errors.
 
 An async function that implements a background task can be easily instrumented
 using the `@xray_task_async()` decorator, like so:
@@ -104,11 +104,11 @@ using the `@xray_task_async()` decorator, like so:
 If your background task functions are called from a function that is already
 instrumented (eg. send an email immediately after handling a request), then 
 the background task will appear as a child segment of that trace. In this case,
-you must ensure you use the fixed `AsyncContext` when configuring the recorder
+you must ensure you use the non-buggy `AsyncContext` when configuring the recorder
 (ie. `from xraysink.context import AsyncContext`)
 
 
-### Process-Level Configuration
+### CloudWatch Logs integration
 You can link your X-Ray traces to your CloudWatch Logs log records, which
 enhances the integration with AWS CloudWatch ServiceLens. Take the following
 steps:
