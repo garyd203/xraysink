@@ -21,7 +21,6 @@ from starlette.status import HTTP_500_INTERNAL_SERVER_ERROR
 from ._aiohttp import AioHttpServerFactory
 from ._fastapi import fastapi_native_middleware_factory
 
-
 pytestmark = pytest.mark.asyncio
 
 
@@ -141,6 +140,22 @@ class TestRequestHandler:
 
         xray_header = server_response.headers[http.XRAY_HEADER]
         assert expected_root in xray_header
+
+    async def test_should_with_missing_http_host_header(self, client, recorder):
+        if "aiohttp" in type(client).__module__:
+            pytest.skip(
+                "aiohttp doesn't have the issue with missing host headers"
+            )
+
+        del client.headers["host"]
+
+        # Exercise
+        await client.get("/")
+
+        # Verify
+        segment = recorder.emitter.pop()
+
+        assert "localhost" in segment.http.get("request").get("url")
 
     async def test_should_record_client_ip_from_x_forwarded_for_header(
         self, client, recorder
