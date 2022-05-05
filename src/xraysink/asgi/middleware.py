@@ -43,11 +43,11 @@ async def xray_middleware(request, handler):
 
     # Get name of service or generate a dynamic one from host
     name = calculate_segment_name(
-        request.headers["host"].split(":", 1)[0], xray_recorder
+        request.headers.get("host", "localhost").split(":", 1)[0], xray_recorder
     )
 
     sampling_req = {
-        "host": request.headers["host"],
+        "host": request.headers.get("host", "localhost"),
         "method": request.method,
         "path": _get_request_path(request),
         "service": name,
