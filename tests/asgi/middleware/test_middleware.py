@@ -141,11 +141,11 @@ class TestRequestHandler:
         xray_header = server_response.headers[http.XRAY_HEADER]
         assert expected_root in xray_header
 
-    async def test_should_with_missing_http_host_header(self, client, recorder):
+    async def test_should_fallback_to_localhost_when_missing_http_host_header(
+        self, client, recorder
+    ):
         if "aiohttp" in type(client).__module__:
-            pytest.skip(
-                "aiohttp doesn't have the issue with missing host headers"
-            )
+            pytest.skip("aiohttp doesn't have the issue with missing host headers")
 
         del client.headers["host"]
 
