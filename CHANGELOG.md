@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## v1.6.0 (2022-05-18)
+
+Changed:
+* Removed explicit support for Python 3.6. Releases of `xraysink` are no longer tested
+  against Python 3.6, and are not marked as compatible with Python 3.6 for `poetry`/`pip`.
+
+
 ## v1.5.2 (2022-05-10)
 
 Changed:
