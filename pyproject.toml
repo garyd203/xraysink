@@ -1,6 +1,6 @@
 [tool.black]
 line-length = 88
-target-version = ["py36", "py37", "py38", "py39", "py310"]
+target-version = ["py37", "py38", "py39", "py310"]
 skip-magic-trailing-comma = true
 
 
@@ -44,7 +44,7 @@ packages = [
 [tool.poetry.dependencies]
 # Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
 # workflow files if the minimum Python version changes.
-python = "^3.6.2"
+python = "^3.7"
 aws_xray_sdk = "~2"
 black = { version = "==22.1.0", optional = true }
 flake8 = { version = "~4", optional = true }
