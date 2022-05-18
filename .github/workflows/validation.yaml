@@ -125,11 +125,11 @@ jobs:
             aws-xray-sdk-version: "<existing>"
             aiohttp-version: "<existing>"
             fastapi-version: "0.47.1"
-          - extra-test-title: "aiohttp v3.0.9: "
+          - extra-test-title: "aiohttp v3.7.0: "
             os-family: ubuntu
-            python-version: "3.6"
+            python-version: "3.7"
             aws-xray-sdk-version: "2.6.0"
-            aiohttp-version: "3.0.9"
+            aiohttp-version: "3.7.0"
             fastapi-version: "<existing>"
 
     steps:
