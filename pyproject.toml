@@ -10,7 +10,7 @@ black-line-length = 88
 
 [tool.poetry]
 name = "xraysink"
-version = "1.6.0"
+version = "1.6.1-beta"
 description = "Instrument asyncio Python for distributed tracing with AWS X-Ray."
 readme = "README.md"
 authors = ["Gary Donovan <gazza@gazza.id.au>"]
