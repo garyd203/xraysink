@@ -17,6 +17,7 @@ Changed:
 
 Changed:
 * Fallback to "localhost" in middleware if the `Host` header is not supplied.
+  (h/t @mroswald)
 
 
 ## v1.5.1 (2022-03-12)
