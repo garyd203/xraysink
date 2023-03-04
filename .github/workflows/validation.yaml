@@ -36,7 +36,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Dependencies
         run: |
-          poetry install --no-dev -E stylecheck
+          poetry install -E stylecheck
       - name: Check YAML Formatting
         run: |
           poetry run yamllint -c yamllint_config.yaml --strict .
@@ -147,7 +147,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Standard Dependencies
         run: |
-          poetry install
+          poetry install -E testing
       - name: Override Dependencies For Backward Compatibility Testing (Unix-like)
         if: matrix.os-family != 'windows'
         run: |
@@ -155,10 +155,10 @@ jobs:
             poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
           fi
           if [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
-            poetry add --dev fastapi="${{ matrix.fastapi-version }}"
+            poetry add fastapi="${{ matrix.fastapi-version }}"
           fi
           if [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
-            poetry add --dev aiohttp="${{ matrix.aiohttp-version }}"
+            poetry add aiohttp="${{ matrix.aiohttp-version }}"
           fi
       - name: Override Dependencies For Backward Compatibility Testing (Windows)
         if: matrix.os-family == 'windows'
@@ -167,10 +167,10 @@ jobs:
             poetry add --dev aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
           }
           if ("${{ matrix.fastapi-version }}" -ne "<existing>" ) {
-            poetry add --dev fastapi="${{ matrix.fastapi-version }}"
+            poetry add fastapi="${{ matrix.fastapi-version }}"
           }
           if ("${{ matrix.aiohttp-version }}" -ne "<existing>" ) {
-            poetry add --dev aiohttp="${{ matrix.aiohttp-version }}"
+            poetry add aiohttp="${{ matrix.aiohttp-version }}"
           }
       - name: Test
         # yamllint disable rule:line-length
