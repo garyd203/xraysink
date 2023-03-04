@@ -677,7 +677,7 @@ name = "setuptools"
 version = "67.4.0"
 description = "Easily download, build, install, upgrade, and uninstall Python packages"
 category = "main"
-optional = true
+optional = false
 python-versions = ">=3.7"
 
 [package.extras]
@@ -813,12 +813,12 @@ docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker
 testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
 
 [extras]
-stylecheck = ["black", "flake8", "flake8-bugbear", "flake8-builtins", "flake8-comprehensions", "flake8-eradicate", "flake8-executable", "flake8-implicit-str-concat", "flake8-import-order", "flake8-logging-format", "flake8-print", "flake8-pytest-style", "flake8-simplify", "flake8-string-format", "flake8-use-fstring", "yamllint", "zimports"]
+stylecheck = ["black", "flake8", "flake8-bugbear", "flake8-builtins", "flake8-comprehensions", "flake8-eradicate", "flake8-executable", "flake8-implicit-str-concat", "flake8-import-order", "flake8-logging-format", "flake8-print", "flake8-pytest-style", "flake8-simplify", "flake8-string-format", "flake8-use-fstring", "setuptools", "yamllint", "zimports"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7.13"
-content-hash = "f0466431c8fce4cbd0f09c51d298243babb8df3135feef45e42e7ae6a7d929b4"
+content-hash = "a7c5d96ced9a91e3a2ba1c89119383bf37693e9e40783bec422640f792334aa6"
 
 [metadata.files]
 aiohttp = [
