@@ -44,7 +44,7 @@ packages = [
 [tool.poetry.dependencies]
 # Update the environment variable `MIN_PYTHON_VERSION` in GitHub Actions
 # workflow files if the minimum Python version changes.
-python = "^3.7.13"
+python = "^3.7.9"
 aiohttp = { version = "^3", optional = true }
 async-asgi-testclient = { version = "^1.4.4", optional = true }
 aws_xray_sdk = "~2"

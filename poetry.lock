@@ -818,8 +818,8 @@ testing = ["aiohttp", "async-asgi-testclient", "coverage", "coverage", "fastapi"
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.7.13"
-content-hash = "e294d48d5cc0ea81c450188d7ad8dc1f2c39b88a584063ce16503d7a51b798f4"
+python-versions = "^3.7.9"
+content-hash = "ba7d97986fb33f8b18651c36c60d6d8c2bc40e507268a037eb983a7dc7cadb63"
 
 [metadata.files]
 aiohttp = [
