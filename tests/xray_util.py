@@ -47,7 +47,6 @@ def get_new_stubbed_recorder():
 
 
 def entity_to_dict(trace_entity):
-
     raw = json.loads(trace_entity.serialize())
     return raw
 
