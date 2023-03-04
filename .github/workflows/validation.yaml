@@ -15,12 +15,14 @@ env:
   # Minimum Python version supported by the library
   # (bumped to the minimum version supported by github actions - see
   # https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json )
-  MIN_PYTHON_VERSION: 3.7.13
+  # Note that ubuntu 22.04 requires minimum 3.7.13, whereas windows on 3.7 requires max 3.7.9
+  # So we compromise on ubuntu 20.04 in order to meet the windows requirement.
+  MIN_PYTHON_VERSION: 3.7.9
   POETRY_VERSION: 1.2.2
 
 jobs:
   style-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python ${{ env.MIN_PYTHON_VERSION }}
