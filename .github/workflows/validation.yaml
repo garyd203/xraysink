@@ -76,52 +76,52 @@ jobs:
       #     within the JSON string have to be escaped.
       matrix:
         os-family: "${{ fromJSON('{\"true\": [ \"ubuntu\", \"windows\", \"macos\" ], \"false\": [ \"ubuntu\" ]}')[github.ref_protected] }}"  # yamllint disable-line rule:line-length
-        python-version: [ "3.7", "3.8", "3.9", "3.10" ]
+        python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
         aws-xray-sdk-version: [ "<existing>" ]
         aiohttp-version: [ "<existing>" ]
         fastapi-version: [ "<existing>" ]
         include:
           # Export test results from the primary configuration
           - os-family: ubuntu
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "<existing>"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
             has-authoritative-test-results: true
           # Always test each OS at least once on PR
           - os-family: macos
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "<existing>"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           - os-family: windows
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "<existing>"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           # Extra test variations for older versions of the AWS X-Ray SDK
           - extra-test-title: "X-Ray SDK v2.6: "
             os-family: ubuntu
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "2.6"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           - extra-test-title: "X-Ray SDK v2.7: "
             os-family: ubuntu
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "2.7"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           - extra-test-title: "X-Ray SDK v2.8: "
             os-family: ubuntu
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "2.8"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           # Extra test variations for older versions of 3rd-party libraries we integrate with
           - extra-test-title: "FastAPI v0.47: "
             os-family: ubuntu
-            python-version: "3.10"
+            python-version: "3.11"
             aws-xray-sdk-version: "<existing>"
             aiohttp-version: "<existing>"
             fastapi-version: "0.47.1"
