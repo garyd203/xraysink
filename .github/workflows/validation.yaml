@@ -102,19 +102,19 @@ jobs:
           # Extra test variations for older versions of the AWS X-Ray SDK
           - extra-test-title: "X-Ray SDK v2.6: "
             os-family: ubuntu
-            python-version: "3.11"
+            python-version: "3.10"
             aws-xray-sdk-version: "2.6"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           - extra-test-title: "X-Ray SDK v2.7: "
             os-family: ubuntu
-            python-version: "3.11"
+            python-version: "3.10"
             aws-xray-sdk-version: "2.7"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
           - extra-test-title: "X-Ray SDK v2.8: "
             os-family: ubuntu
-            python-version: "3.11"
+            python-version: "3.10"
             aws-xray-sdk-version: "2.8"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
