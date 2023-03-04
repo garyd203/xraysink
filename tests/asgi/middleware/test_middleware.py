@@ -275,15 +275,15 @@ class TestRequestHandler:
         # Exercise
         await asyncio.wait(
             [
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
-                get_response_with_delay(),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
+                asyncio.create_task(get_response_with_delay()),
             ]
         )
 
