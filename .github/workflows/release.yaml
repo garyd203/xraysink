@@ -10,7 +10,7 @@ concurrency: release
 
 env:
   BUMPVERSION_VERSION: 1.0.1
-  POETRY_VERSION: 1.1.12
+  POETRY_VERSION: 1.2.2
   # Python version used to build the library
   PYTHON_BUILD_VERSION: 3.9
 
