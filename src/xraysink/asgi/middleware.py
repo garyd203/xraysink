@@ -102,7 +102,7 @@ async def xray_middleware(request, handler):
 
 
 def _get_request_path(request) -> str:
-    """Get the path from from any type of request object."""
+    """Get the path from any type of request object."""
     if hasattr(request, "path"):
         # aiohttp-style
         return request.path
