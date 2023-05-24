@@ -23,6 +23,25 @@ libraries that are not (yet) supported by the official
 [aws_xray_sdk](https://github.com/aws/aws-xray-sdk-python) library.
 
 
+## What Problem Does xraysink Solve?
+
+`aws_xray_sdk` is the standard library to collect trace data from your Python
+code and send the trace data to the
+[AWS X-Ray distributed tracing tool](https://aws.amazon.com/xray/). However,
+if you have asyncio Python code, then there are some gaps and occasional
+bugs in the functionality provided by that library. `xraysink` plugs those gaps.
+
+It can be a bit confusing using two libraries together, so here's a high-level
+breakdown of which library will help you do what:
+
+* Add tracing to HTTP requests handled by FastAPI (or another async Python
+  web framework): `xraysink` (via [middleware](#fastapi))
+* Add tracing to background (non-HTTP-request) functions written as async
+  Python functions: `xraysink` (via [xray_task_async](#background-jobstasks)
+  decorator)
+* Everything else: [aws_xray_sdk](https://github.com/aws/aws-xray-sdk-python)
+
+
 ## Integrations Supported
 * Generic ASGI-compatible tracing middleware for *any* ASGI-compliant web
   framework. This has been tested with:
@@ -30,6 +49,7 @@ libraries that are not (yet) supported by the official
   - [FastAPI](https://fastapi.tiangolo.com/)
 * asyncio [Task's](https://docs.python.org/3/library/asyncio-task.html)
 * Background jobs/tasks
+
 
 ## Installation
 xraysink is distributed as a standard python package through
