@@ -120,6 +120,24 @@ jobs:
             aws-xray-sdk-version: "2.8"
             aiohttp-version: "<existing>"
             fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.9: "
+            os-family: ubuntu
+            python-version: "3.10"
+            aws-xray-sdk-version: "2.9"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.10: "
+            os-family: ubuntu
+            python-version: "3.11"
+            aws-xray-sdk-version: "2.10"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
+          - extra-test-title: "X-Ray SDK v2.11: "
+            os-family: ubuntu
+            python-version: "3.11"
+            aws-xray-sdk-version: "2.11"
+            aiohttp-version: "<existing>"
+            fastapi-version: "<existing>"
           # Extra test variations for older versions of 3rd-party libraries we integrate with
           - extra-test-title: "FastAPI v0.47: "
             os-family: ubuntu
