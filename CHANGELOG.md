@@ -6,10 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## v1.7.0 (unreleased)
+
+Changed:
+* Test against `aws_xray_sdk` release up to v2.12.0
+* Test functionality in `AsyncContext` in `aws_xray_sdk`, including fix in v2.10.0
+
+
 ## v1.6.1 (2023-03-06)
 
 Changed:
-* Test support for python v3.11 and upgradesome dependencies. No code changes.
+* Test support for python v3.11 and upgrade some dependencies. No code changes.
 
 
 ## v1.6.0 (2022-05-18)

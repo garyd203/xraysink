@@ -3,17 +3,33 @@ from asyncio import gather
 from asyncio import sleep
 
 import pytest
+from aws_xray_sdk.core.async_context import AsyncContext as CoreAsyncContext
+from aws_xray_sdk.version import VERSION as AWS_XRAY_SDK_VERSION_STRING
 
 from xraysink.context import AsyncContext
 
 pytestmark = pytest.mark.asyncio
 
+AWS_XRAY_SDK_VERSION = list(map(int, AWS_XRAY_SDK_VERSION_STRING.split(".")))
 
+BROKEN_SDK_VERSION = pytest.mark.xfail(
+    AWS_XRAY_SDK_VERSION[0] == 2 and AWS_XRAY_SDK_VERSION[1] < 10,
+    reason="aws_xray_sdk async context propagation prior to v2.10.0 was broken",
+)
+
+
+@pytest.mark.parametrize(
+    "context_class",
+    [
+        pytest.param(AsyncContext, id="xraysink"),
+        pytest.param(CoreAsyncContext, marks=[BROKEN_SDK_VERSION], id="aws_xray_sdk"),
+    ],
+)
 async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent(
-    recorder,
+    recorder, context_class
 ):
     # Setup
-    recorder.configure(context=AsyncContext(use_task_factory=True))
+    recorder.configure(context=context_class(use_task_factory=True))
 
     async def do_task(name: str, sleep_time: float):
         # Emulate a remote call by starting a subsegment and blocking
@@ -65,9 +81,18 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
     assert getattr(subsegments["errored-task"], "fault", False)
 
 
-async def test_asyncio_task_should_start_segment_when_none_present(recorder):
+@pytest.mark.parametrize(
+    "context_class",
+    [
+        pytest.param(AsyncContext, id="xraysink"),
+        pytest.param(CoreAsyncContext, marks=[BROKEN_SDK_VERSION], id="aws_xray_sdk"),
+    ],
+)
+async def test_asyncio_task_should_start_segment_when_none_present(
+    recorder, context_class
+):
     # Setup
-    recorder.configure(context=AsyncContext(use_task_factory=True))
+    recorder.configure(context=context_class(use_task_factory=True))
 
     async def do_task(a, b):
         async with recorder.in_segment_async():
@@ -86,9 +111,18 @@ async def test_asyncio_task_should_start_segment_when_none_present(recorder):
     assert getattr(segment, "fault", False) is False
 
 
-async def test_asyncio_task_should_start_segment_when_previous_segment_closed(recorder):
+@pytest.mark.parametrize(
+    "context_class",
+    [
+        pytest.param(AsyncContext, id="xraysink"),
+        pytest.param(CoreAsyncContext, marks=[BROKEN_SDK_VERSION], id="aws_xray_sdk"),
+    ],
+)
+async def test_asyncio_task_should_start_segment_when_previous_segment_closed(
+    recorder, context_class
+):
     # Setup
-    recorder.configure(context=AsyncContext(use_task_factory=True))
+    recorder.configure(context=context_class(use_task_factory=True))
 
     async def do_task(a, b):
         async with recorder.in_segment_async():
