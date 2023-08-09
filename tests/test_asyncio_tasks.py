@@ -41,6 +41,11 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
         async with recorder.in_subsegment_async(name=name):
             raise Exception(name)
 
+    async def nested_tasks(name: str):
+        # Emulate a locally-defined subsegment with remote calls by starting nested subsegments
+        async with recorder.in_subsegment_async(name=name):
+            _ = await gather(do_task("short-task", 0.05), do_task("long-task", 1.0))
+
     # Exercise
     async with recorder.in_segment_async(name="top-segment"):
         _ = await gather(
@@ -48,6 +53,7 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
             do_task("long-task", 2.0),
             broken_task("errored-task"),
             do_task("medium-task", 0.5),
+            nested_tasks("nested-task"),
             return_exceptions=True,
         )
 
@@ -56,8 +62,8 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
     subsegments = {elem.name: elem for elem in segment.subsegments}
 
     assert (
-        len(subsegments) == 4
-    ), "Each asyncio task should create a subsegment from the main segment "
+        len(subsegments) == 5
+    ), "Each asyncio task should create a subsegment from the main segment"
 
     assert (
         subsegments["short-task"].end_time - subsegments["long-task"].start_time
@@ -79,6 +85,30 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
 
     assert not getattr(subsegments["errored-task"], "error", False)
     assert getattr(subsegments["errored-task"], "fault", False)
+
+    nested_task_subsegment = subsegments["nested-task"]
+    assert (
+        nested_task_subsegment.end_time - nested_task_subsegment.start_time
+    ) == pytest.approx(1.0 + 0.05, abs=0.2)
+    assert not getattr(nested_task_subsegment, "error", False)
+    assert not getattr(nested_task_subsegment, "fault", False)
+
+    nested_subsegments = {
+        elem.name: elem for elem in nested_task_subsegment.subsegments
+    }
+    assert len(nested_subsegments) == 2, "Each nested task should create a subsegment"
+
+    assert (
+        nested_subsegments["short-task"].end_time - subsegments["long-task"].start_time
+    ) == pytest.approx(0.05, abs=0.2)
+    assert not getattr(nested_subsegments["short-task"], "error", False)
+    assert not getattr(nested_subsegments["short-task"], "fault", False)
+
+    assert (
+        nested_subsegments["long-task"].end_time - subsegments["long-task"].start_time
+    ) == pytest.approx(1.0, abs=0.2)
+    assert not getattr(nested_subsegments["long-task"], "error", False)
+    assert not getattr(nested_subsegments["long-task"], "fault", False)
 
 
 @pytest.mark.parametrize(
