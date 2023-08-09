@@ -38,7 +38,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Dependencies
         run: |
-          poetry install -E stylecheck
+          poetry install --without testing
       - name: Check YAML Formatting
         run: |
           poetry run yamllint -c yamllint_config.yaml --strict .
@@ -167,30 +167,30 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Standard Dependencies
         run: |
-          poetry install -E testing
+          poetry install --without stylecheck
       - name: Override Dependencies For Backward Compatibility Testing (Unix-like)
         if: matrix.os-family != 'windows'
         run: |
           if [ "${{ matrix.aws-xray-sdk-version }}" != "<existing>" ]; then
-            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}" --group testing
           fi
           if [ "${{ matrix.fastapi-version }}" != "<existing>" ]; then
-            poetry add fastapi="${{ matrix.fastapi-version }}"
+            poetry add fastapi="${{ matrix.fastapi-version }}" --group testing
           fi
           if [ "${{ matrix.aiohttp-version }}" != "<existing>" ]; then
-            poetry add aiohttp="${{ matrix.aiohttp-version }}"
+            poetry add aiohttp="${{ matrix.aiohttp-version }}" --group testing
           fi
       - name: Override Dependencies For Backward Compatibility Testing (Windows)
         if: matrix.os-family == 'windows'
         run: |
           if ("${{ matrix.aws-xray-sdk-version }}" -ne "<existing>" ) {
-            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}"
+            poetry add aws_xray_sdk="${{ matrix.aws-xray-sdk-version }}" --group testing
           }
           if ("${{ matrix.fastapi-version }}" -ne "<existing>" ) {
-            poetry add fastapi="${{ matrix.fastapi-version }}"
+            poetry add fastapi="${{ matrix.fastapi-version }}" --group testing
           }
           if ("${{ matrix.aiohttp-version }}" -ne "<existing>" ) {
-            poetry add aiohttp="${{ matrix.aiohttp-version }}"
+            poetry add aiohttp="${{ matrix.aiohttp-version }}" --group testing
           }
       - name: Test
         # yamllint disable rule:line-length
