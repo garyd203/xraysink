@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Changed:
 * Test against `aws_xray_sdk` release up to v2.12.0
 * Test functionality in `AsyncContext` in `aws_xray_sdk`, including fix in v2.10.0
+* Upgrade `poetry` to v1.5.1, and update development-time dependencies to use
+  dependency groups.
 
 
 ## v1.6.1 (2023-03-06)
