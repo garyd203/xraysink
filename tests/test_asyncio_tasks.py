@@ -37,7 +37,7 @@ async def test_asyncio_task_subsegments_should_use_parent_task_segment_as_parent
             await sleep(sleep_time)
 
     async def broken_task(name: str):
-        # Emulate a remote call by starting a subsegment and blocking
+        # Emulate a failure in a remote call by starting a subsegment and raising an exception
         async with recorder.in_subsegment_async(name=name):
             raise Exception(name)
 
