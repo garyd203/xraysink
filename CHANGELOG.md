@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## v1.7.0 (unreleased)
 
+Security:
+* Upgrade `certifi` to v2023.7.22 to resolve security vulnerability with the e-Tugra root
+  SSL certificate (https://groups.google.com/a/mozilla.org/g/dev-security-policy/c/C-HrP1SEq1A
+  has further details)
+
 Changed:
 * Test against `aws_xray_sdk` release up to v2.12.0
 * Test functionality in `AsyncContext` in `aws_xray_sdk`, including fix in v2.10.0
