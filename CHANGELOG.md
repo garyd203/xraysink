@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## v1.7.0 (unreleased)
+## v1.6.2 (2023-08-23)
 
 Security:
 * Upgrade `certifi` to v2023.7.22 to resolve security vulnerability with the e-Tugra root
