@@ -217,8 +217,13 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
       - name: Install Build wheel
-        run: |
-          pip install xraysink==${{ needs.publish.outputs.release-version }}
+        uses: nick-fields/retry@943e742917ac94714d2f408a0e8320f2d1fcafcd  # v2.8.3
+        with:
+          command: |
+            pip install xraysink==${{ needs.publish.outputs.release-version }}
+          max_attempts: 10
+          retry_wait_seconds: 30
+          timeout_seconds: 15
       - name: Smoke Test
         shell: python
         # TODO check __version__ in published file
