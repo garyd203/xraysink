@@ -69,19 +69,19 @@ setuptools = "~67"
 
 black = "==23.1.0"
 flake8 = "~4"
-flake8-bugbear = ">=22.1.11"
-flake8-builtins = "~2.1"
-flake8-comprehensions = "~3.10"
-flake8-eradicate = "~1.4"
-flake8-executable = "~2.1"
-flake8-implicit-str-concat = "~0.4"
-flake8-import-order = "~0.18"
-flake8-logging-format = "~0.9"
-flake8-print = "~5"
-flake8-pytest-style = "~1.7"
-flake8-simplify = "~0.19"
+flake8-bugbear = ">=22.1.11" # B https://docs.astral.sh/ruff/rules/#flake8-bugbear-b
+flake8-builtins = "~2.1" # A https://docs.astral.sh/ruff/rules/#flake8-builtins-a
+flake8-comprehensions = "~3.10" # C4 https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+flake8-eradicate = "~1.4" # ERA https://docs.astral.sh/ruff/rules/#eradicate-era
+flake8-executable = "~2.1" # EXE https://docs.astral.sh/ruff/rules/#flake8-executable-exe
+flake8-implicit-str-concat = "~0.4" # ISC https://docs.astral.sh/ruff/rules/#flake8-implicit-str-concat-isc
+flake8-import-order = "~0.18" # I https://docs.astral.sh/ruff/rules/#isort-i
+flake8-logging-format = "~0.9" # G https://docs.astral.sh/ruff/rules/#flake8-logging-format-g
+flake8-print = "~5" # T20 https://docs.astral.sh/ruff/rules/#flake8-print-t20
+flake8-pytest-style = "~1.7" # PT https://docs.astral.sh/ruff/rules/#flake8-pytest-style-pt
+flake8-simplify = "~0.19" # SIM https://docs.astral.sh/ruff/rules/#flake8-simplify-sim
 flake8-string-format = "~0.3"
-flake8-use-fstring = "~1.4"
+flake8-use-fstring = "~1.4" # UP032 https://docs.astral.sh/ruff/rules/f-string/
 yamllint = "~1.29"
 zimports = { version = "~0.6", markers = "python_version >= '3.7'" }
 
@@ -95,7 +95,7 @@ indent-width = 4
 
 
 [tool.ruff.lint]
-select = ["E4", "E7", "E9", "F"]
+select = ["E4", "E7", "E9", "F", "B", "A", "C4", "ERA", "EXE", "ISC", "G", "T20", "PT", "SIM", "UP032"]
 ignore = ["E501"]
 
 # Allow fix for all enabled rules (when `--fix`) is provided.
