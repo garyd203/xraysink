@@ -45,10 +45,10 @@ jobs:
       - name: Check Python Formatting
         run: |
           # NB: Format before style check
-          poetry run black --check src tests
+          poetry run ruff format --check src tests
       - name: General Python Style Checks (Flake8)
         run: |
-          poetry run flake8 --benchmark
+          poetry run ruff check src tests
 
   test:
     name: >
@@ -167,7 +167,7 @@ jobs:
           poetry-version: ${{ env.POETRY_VERSION }}
       - name: Install Standard Dependencies
         run: |
-          poetry install --without stylecheck
+          poetry install --without dev
       - name: Override Dependencies For Backward Compatibility Testing (Unix-like)
         if: matrix.os-family != 'windows'
         run: |
