@@ -85,6 +85,33 @@ flake8-use-fstring = "~1.4"
 yamllint = "~1.29"
 zimports = { version = "~0.6", markers = "python_version >= '3.7'" }
 
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.0"
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+ignore = ["E501"]
+
+# Allow fix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = true
+line-ending = "auto"
+
+
 [build-system]
 requires = ["poetry>=1.5.0"]
 build-backend = "poetry.masonry.api"
