@@ -12,6 +12,8 @@ def _context_aware_task_factory(loop, coro):
     """
     Custom task factory function.
     """
+    asyncio.BaseEventLoop.create_task  # TODO remove
+    # TODO I think we need to accept a `context` arg? parent func now has updated sugnature, mutter mutter
     task = asyncio.Task(coro, loop=loop)
 
     # noinspection PyUnresolvedReferences,PyProtectedMember
@@ -29,6 +31,8 @@ def _context_aware_task_factory(loop, coro):
         # Propagate a copy of the current stack of entities (segment, plus
         # ordered subsegments). We don't want to share the same entity stack
         # amongst concurrent tasks, because that's just wrong.
+        # TODO core aws-xray-sdk *shallow copies* over old rest of old context (ie. those bits not related to xray). not sure wehther we need that, seems like good caution ?
+        # TODO core aws-xray-sdk *does not* copy over rest of old context (simply reuses pointer to original) if there are no entites. possible inconsistency here, write  atets and check the python core impl
         new_context = {"entities": list(current_task.context.get("entities", []))}
         task.context = new_context
 

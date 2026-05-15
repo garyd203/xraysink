@@ -1,4 +1,12 @@
+[tool.black]
+line-length = 88
+# TODO py311
+target-version = ["py37", "py38", "py39", "py310"]
+skip-magic-trailing-comma = true
+
+
 [tool.zimports]
+# TODO I think we dont use this any more
 black-line-length = 88
 
 
